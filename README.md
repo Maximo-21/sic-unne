@@ -1,75 +1,30 @@
-# React + TypeScript + Vite
+🎓 SIC-UNNE — Sistema de Asignación por Matching
+Descripción del Proyecto
+Este proyecto desarrolla una solución tecnológica para la asignación de alumnos a comisiones en la UNNE, utilizando un algoritmo de Matching. El objetivo es sustituir la inscripción tradicional por una distribución inteligente que optimice los cupos y respete las prioridades académicas de los estudiantes.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Funcionalidades Principales
+Algoritmo de Matching: El motor central del sistema que realiza el emparejamiento entre la disponibilidad de comisiones y las solicitudes de los alumnos.
 
-Currently, two official plugins are available:
+Gestión de Usuarios (CRUD): Módulo para el registro, edición y consulta de los datos de los estudiantes que participarán en el proceso.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Simulación de Entorno: Integración de datos simulados de comisiones y materias para validar la eficiencia del algoritmo de asignación.
 
-## React Compiler
+🛠️ Tecnologías y Herramientas
+Framework: Next.js (App Router)
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Lenguaje: TypeScript
 
-Note: This will impact Vite dev & build performances.
+Base de Datos: Supabase (PostgreSQL)
 
-## Expanding the ESLint configuration
+Estilos: Tailwind CSS
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+📂 Estructura del Repositorio
+/app: Páginas y rutas de la aplicación.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+/components: Componentes de la interfaz para el registro de usuarios y visualización de resultados.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+/services: Lógica de comunicación con Supabase para el CRUD de usuarios.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+/types: Definiciones de interfaces para asegurar la consistencia de los datos.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+/BDD: Esquemas y sentencias SQL para la estructura de la base de datos.
