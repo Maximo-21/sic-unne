@@ -37,11 +37,5 @@ export const userSchema = {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   },
 
-  /**
-   * 5. EXTRA: Validación de Email Institucional (Opcional)
-   * Si querés que solo acepten correos de la UNNE.
-   */
-  isInstitutionalEmail: (email: string) => {
-    return email.toLowerCase().endsWith('@unne.edu.ar');
-  }
+ 
 };

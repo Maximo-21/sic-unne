@@ -58,7 +58,7 @@ export default function UserList({ refreshKey, onEdit }: Props) {
   )
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm min-h-[500px] flex flex-col">
+    <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm min-h-125 flex flex-col">
       {/* Header con Buscador */}
       <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-2xl">
         <div className="relative w-full max-w-md">

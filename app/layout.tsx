@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="es"> 
       <body
-        className={`${manrope.variable} ${inter.variable} font-body antialiased bg-[#fbf8ff] text-[#1b1b21] min-h-screen relative overflow-x-hidden`}
+        className={`${manrope.variable} ${inter.variable} font-body antialiased bg-surface-lavender text-on-surface min-h-screen relative overflow-x-hidden`}
       >
         {/* 🎨 Fondos decorativos estilo Stitch (los círculos de color difuminados) */}
         <div className="fixed inset-0 z-0 pointer-events-none">
