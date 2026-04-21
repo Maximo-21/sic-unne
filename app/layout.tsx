@@ -33,8 +33,8 @@ export default function RootLayout({
       >
         {/* 🎨 Fondos decorativos estilo Stitch (los círculos de color difuminados) */}
         <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#eddcff]/40 blur-[120px]"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#e0e0ff]/30 blur-[100px]"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-150 h-150 rounded-full bg-[#eddcff]/40 blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-150 h-150 rounded-full bg-[#e0e0ff]/30 blur-[100px]"></div>
         </div>
 
         {/* Contenido de la aplicación */}

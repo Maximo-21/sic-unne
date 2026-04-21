@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
+/* 🎨 Configuración del Tema Stitch (Tailwind v4) */
+@theme {
+  /* Vinculamos las fuentes que configuramos en el layout.tsx */
+  --font-headline: var(--font-manrope), ui-sans-serif, system-ui;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui;
+
+  /* Agregamos los colores institucionales */
+  --color-primary-unne: #000666;
+  --color-secondary-unne: #7345b6;
+  --color-surface-lavender: #fbf8ff;
+  --color-on-surface: #1b1b21;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbf8ff;
+  --foreground: #1b1b21;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 💡 Quitamos el modo dark para mantener la estética clara de Stitch */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Aplicamos la fuente de cuerpo e Inter por defecto */
+  @apply antialiased font-body;
+}
+
+/* 🛠️ Utilidades personalizadas para el Login y CRUD */
+@utility soft-fill-input {
+  background-color: #e4e1ea;
+  border: none;
+  border-bottom: 2px solid #c6c5d4;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-bottom-color: #000666;
+    box-shadow: 0 4px 12px -4px rgba(0, 6, 102, 0.1);
+  }
+}
+
+@utility primary-gradient-cta {
+  background: linear-gradient(135deg, #000666 0%, #1a237e 100%);
+}
+
+/* Ajuste para los iconos de Google */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
