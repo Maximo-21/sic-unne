@@ -1,8 +1,7 @@
 "use client"
-
 import { useState } from 'react'
 import { userService } from '@/services/userService'
-import { userSchema } from '@/utils/validations' // Importamos las "leyes" del sistema
+import { userSchema } from '@/utils/validations'
 import { User } from '@/types/user'
 
 interface Props {
@@ -28,170 +27,99 @@ export default function UserForm({ onUserCreated, userEditing, onCancelEdit }: P
       apellido: formData.get('apellido') as string,
       email: formData.get('email') as string,
       rol: formData.get('rol') as 'estudiante' | 'admin',
-      estado: userEditing?.estado || 'activo' as const
+      estado: userEditing?.estado || 'activo'
     }
 
-    // --- 🛡️ CAPA DE VALIDACIONES TÉCNICAS (BACKEND-LIKE) ---
-    
-    // 1. Verificar campos vacíos
     if (!userSchema.validateRequired(userData)) {
       setLoading(false)
-      return setMsg({ text: '⚠️ All fields are required', type: 'error' })
-    }
-
-    // 2. Validar DNI (7-9 números)
-    if (!userSchema.validateDNI(userData.dni)) {
-      setLoading(false)
-      return setMsg({ text: '⚠️ Invalid DNI (Numbers only, 7-9 digits)', type: 'error' })
-    }
-
-    // 3. Validar Nombre y Apellido (Sin números)
-    if (!userSchema.validateName(userData.nombre) || !userSchema.validateName(userData.apellido)) {
-      setLoading(false)
-      return setMsg({ text: '⚠️ Names and Lastnames cannot contain numbers', type: 'error' })
-    }
-
-    // 4. Validar Email format
-    if (!userSchema.validateEmail(userData.email)) {
-      setLoading(false)
-      return setMsg({ text: '⚠️ Invalid Email format (must contain @ and .)', type: 'error' })
+      return setMsg({ text: '⚠️ Faltan campos obligatorios', type: 'error' })
     }
 
     try {
-      let res;
-      if (userEditing?.id_usuario) {
-        // 💡 MODO EDICIÓN: Usamos updateUser
-        res = await userService.updateUser(userEditing.id_usuario, userData)
-      } else {
-        // 💡 MODO CREACIÓN: Usamos createUser
-        res = await userService.createUser(userData)
-      }
+      let res = userEditing?.id_usuario 
+        ? await userService.updateUser(userEditing.id_usuario, userData)
+        : await userService.createUser(userData)
 
       if (res.error) throw res.error
 
-      setMsg({ 
-        text: userEditing ? '✨ User updated successfully' : '✨ User created successfully', 
-        type: 'success' 
-      })
-      
-      currentForm.reset()
-      onUserCreated() // Refrescamos la lista
-      if (userEditing) onCancelEdit() // Salimos del modo edición si corresponde
-      
+      setMsg({ text: '✅ Cambios guardados', type: 'success' })
+      if (!userEditing) currentForm.reset()
+      onUserCreated()
+      if (userEditing) onCancelEdit()
     } catch (err: any) {
-      setMsg({ text: `⚠️ Database Error: ${err.message}`, type: 'error' })
+      setMsg({ text: `❌ Error: ${err.message}`, type: 'error' })
     } finally {
       setLoading(false) 
     }
   }
 
   return (
-    <div className="bg-black/90 backdrop-blur-lg p-10 rounded-[32px] border border-zinc-800 shadow-2xl">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
-          {userEditing ? 'Edit User' : 'New User'}
-        </h2>
-        <div className="h-1 w-12 bg-yellow-400 mx-auto mt-2 rounded-full"></div>
-        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-4">
-          {userEditing ? 'Update profile information' : 'System Registration'}
+    <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm">
+      <div className="p-6 border-b border-zinc-100 bg-zinc-50/30">
+        <h3 className="font-headline font-bold text-primary-unne text-lg">
+          {userEditing ? 'Modificar Usuario' : 'Registrar Usuario'}
+        </h3>
+        <p className="text-[11px] text-zinc-400 font-bold uppercase tracking-widest mt-1">
+            Información de cuenta
         </p>
       </div>
       
-      <form key={userEditing?.id_usuario || 'new'} onSubmit={handleSubmit} className="space-y-5">
-        
-        {/* DNI: Locked if editing */}
-        <div className="group space-y-1">
-          <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2 group-focus-within:text-yellow-400 transition-colors">
-            DNI {userEditing && '(Locked)'}
-          </label>
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-zinc-500 uppercase ml-1">DNI / ID</label>
           <input 
             name="dni" 
             required 
             defaultValue={userEditing?.dni} 
-            readOnly={!!userEditing} // 💡 REGLA: No se edita el DNI
-            placeholder="Numbers only"
-            className={`w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-white outline-none transition-all ${
-              userEditing ? 'opacity-30 cursor-not-allowed border-transparent' : 'focus:border-yellow-400'
-            }`} 
+            readOnly={!!userEditing}
+            className={`w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none transition-all ${userEditing ? 'bg-zinc-50 text-zinc-400 font-medium' : 'bg-white'}`} 
+            placeholder="Sin puntos"
           />
         </div>
 
-        {/* Name & Lastname Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="group space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2">First Name</label>
-            <input 
-              name="nombre" 
-              required 
-              defaultValue={userEditing?.nombre} 
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-white focus:border-yellow-400 outline-none transition-all" 
-            />
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-zinc-500 uppercase ml-1">Nombre</label>
+            <input name="nombre" defaultValue={userEditing?.nombre} className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none" />
           </div>
-          <div className="group space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2">Last Name</label>
-            <input 
-              name="apellido" 
-              required 
-              defaultValue={userEditing?.apellido} 
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-white focus:border-yellow-400 outline-none transition-all" 
-            />
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-zinc-500 uppercase ml-1">Apellido</label>
+            <input name="apellido" defaultValue={userEditing?.apellido} className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none" />
           </div>
         </div>
 
-        {/* Email */}
-        <div className="group space-y-1">
-          <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2">Email</label>
-          <input 
-            name="email" 
-            type="email" 
-            required 
-            defaultValue={userEditing?.email} 
-            placeholder="example@unne.edu.ar"
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-white focus:border-yellow-400 outline-none transition-all" 
-          />
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-zinc-500 uppercase ml-1">Email Institucional</label>
+          <input name="email" type="email" defaultValue={userEditing?.email} className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none" />
         </div>
 
-        {/* Role Selector */}
-        <div className="group space-y-1 pb-2">
-          <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2">Access Role</label>
-          <div className="relative">
-            <select 
-              name="rol" 
-              defaultValue={userEditing?.rol || 'estudiante'} 
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-white focus:border-yellow-400 outline-none appearance-none cursor-pointer"
-            >
-              <option value="estudiante">Student</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </div>
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-zinc-500 uppercase ml-1">Rol en el Sistema</label>
+          <select name="rol" defaultValue={userEditing?.rol || 'estudiante'} className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none bg-white">
+            <option value="estudiante">Estudiante</option>
+            <option value="admin">Administrador</option>
+          </select>
         </div>
 
-        {/* Submit Button */}
-        <button 
-          type="submit" 
-          disabled={loading} 
-          className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-5 rounded-2xl transition-all shadow-lg shadow-yellow-400/10 active:scale-95 disabled:opacity-50"
-        >
-          {loading ? 'PROCESSING...' : userEditing ? 'SAVE CHANGES' : 'CREATE USER'}
-        </button>
-
-        {userEditing && (
+        <div className="pt-4">
           <button 
-            type="button" 
-            onClick={onCancelEdit} 
-            className="w-full text-zinc-600 text-[10px] font-bold uppercase mt-2 hover:text-white transition-colors"
+            type="submit" 
+            disabled={loading} 
+            className="w-full bg-primary-unne hover:bg-primary-unne/95 text-white font-bold py-4 rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
           >
-            Cancel Edition
+            {loading ? 'PROCESANDO...' : userEditing ? 'ACTUALIZAR DATOS' : 'CREAR USUARIO'}
           </button>
-        )}
+          {userEditing && (
+            <button type="button" onClick={onCancelEdit} className="w-full text-zinc-400 text-[11px] font-bold uppercase mt-4 hover:text-zinc-600 transition-colors">
+              Descartar Cambios
+            </button>
+          )}
+        </div>
       </form>
 
-      {/* Messages */}
       {msg.text && (
-        <div className={`mt-8 p-4 rounded-2xl text-[10px] font-bold text-center border animate-in fade-in slide-in-from-bottom-2 ${
-          msg.type === 'error' ? 'bg-red-500/5 text-red-500 border-red-500/10' : 'bg-yellow-400/5 text-yellow-400 border-yellow-400/10'
-        }`}>
-          {msg.text}
+        <div className={`mx-6 mb-6 p-3 rounded-xl text-[10px] font-bold text-center border ${msg.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+          {msg.text.toUpperCase()}
         </div>
       )}
     </div>
