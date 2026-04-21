@@ -1,34 +1,57 @@
-import { supabase } from '@/services/supabase'
+"use client"
 
-export default async function Home() {
-  // Intentamos traer los usuarios que creamos en Supabase
-  const { data: usuarios, error } = await supabase.from('usuarios').select('*')
+import { useState } from 'react'
+import UserForm from '@/components/users/UserForm'
+import UserList from '@/components/users/UserList'
+import { User } from '@/types/user'
+
+export default function Home() {
+  const [refreshKey, setRefreshKey] = useState(0)
+  
+  // 💡 ESTADO CLAVE: Aquí guardamos al usuario que seleccionamos para editar
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+
+  // Función que se dispara cuando creamos o editamos con éxito
+  const handleUserAction = () => {
+    setRefreshKey(prev => prev + 1) // Refresca la lista
+    setSelectedUser(null)          // Limpia el formulario (vuelve a modo "Crear")
+  }
 
   return (
-    <main style={{ padding: '40px', fontFamily: 'sans-serif', backgroundColor: '#111', color: 'white', minHeight: '100vh' }}>
-      <h1 style={{ color: '#3ecf8e' }}>🎓 SIC - UNNE</h1>
-      <p>Sistema de Gestión de Comisiones</p>
-      <hr style={{ borderColor: '#333' }} />
-
-      <section style={{ marginTop: '20px' }}>
-        <h2>Estado del Backend:</h2>
-        {error ? (
-          <p style={{ color: '#ff4b4b' }}>❌ Error: {error.message}</p>
-        ) : (
-          <p style={{ color: '#3ecf8e' }}>✅ Conexión con Supabase exitosa</p>
-        )}
-      </section>
-
-      <section style={{ marginTop: '20px' }}>
-        <h3>Datos en la tabla 'usuarios':</h3>
-        <div style={{ background: '#222', padding: '15px', borderRadius: '8px' }}>
-          {usuarios && usuarios.length > 0 ? (
-            <pre>{JSON.stringify(usuarios, null, 2)}</pre>
-          ) : (
-            <p>La tabla está vacía. ¡Es hora de cargar el primer alumno!</p>
-          )}
+    <main className="min-h-screen bg-black text-zinc-100 p-6 lg:p-10">
+      {/* Header del Sistema */}
+      <header className="mb-10 flex justify-between items-end border-b border-zinc-800 pb-6">
+        <div>
+          <h1 className="text-4xl font-black tracking-tighter">
+            SIC<span className="text-yellow-400">.</span>UNNE
+          </h1>
+          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.4em]">
+            Matching Engine <span className="text-zinc-700">v1.0</span>
+          </p>
         </div>
-      </section>
+      </header>
+
+      {/* Grid Principal: 4 columnas para Form, 8 para Lista */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Lado Izquierdo: Formulario de Usuario */}
+        <section className="lg:col-span-4 sticky top-10">
+          <UserForm 
+            onUserCreated={handleUserAction} 
+            userEditing={selectedUser} 
+            onCancelEdit={() => setSelectedUser(null)} 
+          />
+        </section>
+
+        {/* Lado Derecho: Listado de Usuarios */}
+        <section className="lg:col-span-8">
+          <UserList 
+            refreshKey={refreshKey} 
+            onEdit={setSelectedUser} 
+          />
+        </section>
+
+      </div>
     </main>
   )
 }
