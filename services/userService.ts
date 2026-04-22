@@ -15,29 +15,33 @@ export const userService = {
   createUser: async (userData: Omit<User, 'id_usuario' | 'fecha_registro'>) => {
     const { data, error } = await supabase
       .from('usuarios')
-      .insert([userData])
+      .insert([userData]) // Supabase espera un array de objetos
       .select()
+      .single() // Esto nos devuelve el objeto creado directamente en 'data'
+    
+    // Devolvemos el error tal cual viene de Supabase (con su código 23505 si falla)
     return { data, error }
   },
 
   // UPDATE: Método genérico para actualizar cualquier campo
-  updateUser: async (userId: string, changes: Partial<User>) => {
+  updateUser: async (userId: string | number, changes: Partial<User>) => {
     const { data, error } = await supabase
       .from('usuarios')
       .update(changes)
-      .eq('id_usuario', userId) // 💡 id_usuario es tu PK en la foto
+      .eq('id_usuario', userId)
       .select()
+      .single()
+      
     return { data, error }
   },
 
   // LOGICAL DELETE: Cambiar estado a 'inactivo'
-  deactivateUser: async (userId: string) => {
-    // Reutilizamos updateUser para mantener la consistencia
+  deactivateUser: async (userId: string | number) => {
     return await userService.updateUser(userId, { estado: 'inactivo' })
   },
 
   // REACTIVATE: Cambiar estado a 'activo'
-  activateUser: async (userId: string) => {
+  activateUser: async (userId: string | number) => {
     return await userService.updateUser(userId, { estado: 'activo' })
   }
 }

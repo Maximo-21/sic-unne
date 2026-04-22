@@ -65,7 +65,7 @@ export default function UserList({ refreshKey, onEdit }: Props) {
           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">search</span>
           <input 
             type="text" 
-            placeholder="Buscar por nombre, DNI o cargo..." 
+            placeholder="Buscar por nombre o DNI..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:bg-white focus:border-primary-unne outline-none transition-all placeholder:text-zinc-400"
@@ -130,13 +130,20 @@ export default function UserList({ refreshKey, onEdit }: Props) {
 
                   <td className="px-8 py-5 text-right">
                     <div className="flex justify-end gap-1 md:opacity-0 group-hover:opacity-100 transition-all">
-                      <button 
-                        onClick={() => onEdit(u)} 
-                        className="p-2 text-zinc-400 hover:text-primary-unne hover:bg-primary-unne/5 rounded-lg transition-colors" 
-                        title="Editar perfil"
-                      >
-                        <span className="material-symbols-outlined text-xl">edit_note</span>
-                      </button>
+                        <button 
+                          onClick={() => onEdit(u)} 
+                          disabled={u.estado === 'inactivo'} // 👈 Bloqueo total si está inactivo
+                          className={`p-2 rounded-lg transition-all ${
+                            u.estado === 'inactivo' 
+                              ? 'text-zinc-200 cursor-not-allowed opacity-50' // Estilo bloqueado
+                              : 'text-zinc-400 hover:text-primary-unne hover:bg-primary-unne/5'
+                          }`} 
+                          title={u.estado === 'inactivo' ? 'Reactive al usuario para editar' : 'Editar perfil'}
+                        >
+                          <span className="material-symbols-outlined text-xl">
+                            {u.estado === 'inactivo' ? 'lock' : 'edit_note'} {/* Cambia el icono a un candado si está inactivo */}
+                          </span>
+                        </button>
                       
                       <button 
                         onClick={() => handleToggleStatus(u)} 
