@@ -1,61 +1,67 @@
 "use client"
 import { useEffect, useState, useCallback } from 'react'
 import { userService } from '@/services/userService'
-import { User } from '@/types/user'
+import { Usuario } from '@/types/user'
 
 interface Props {
-  refreshKey: number;
-  onEdit: (u: User) => void;
+  claveRecarga: number;
+  alEditar: (usuario: Usuario) => void;
 }
 
-export default function UserList({ refreshKey, onEdit }: Props) {
-  const [users, setUsers] = useState<User[]>([])
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
+export default function UserList({ claveRecarga, alEditar }: Props) {
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [busqueda, setBusqueda] = useState('')
+  const [cargando, setCargando] = useState(true)
 
   // 🔄 Función para traer datos (memorizada para evitar bucles)
-  const fetchUsersData = useCallback(async () => {
-    setLoading(true)
+  const obtenerDatosUsuarios = useCallback(async () => {
+    setCargando(true)
     try {
-      const { data, error } = await userService.fetchUsers()
+      const { data, error } = await userService.obtenerUsuarios()
       if (error) throw error
-      if (data) setUsers(data)
+      if (data) setUsuarios(data)
     } catch (err: any) {
-      console.error("Error fetching users:", err.message)
+      console.error("Error obteniendo usuarios:", err.message)
     } finally {
-      setLoading(false)
+      setCargando(false)
     }
   }, [])
 
-  // Escuchar cambios externos (cuando el form crea/edita)
+  // Escuchar cambios externos (cuando el formulario crea/edita)
   useEffect(() => { 
-    fetchUsersData() 
-  }, [refreshKey, fetchUsersData])
+    obtenerDatosUsuarios() 
+  }, [claveRecarga, obtenerDatosUsuarios])
 
-  // 🛡️ Lógica de Alta/Baja corregida
-  const handleToggleStatus = async (user: User) => {
-    const newStatus = user.estado === 'activo' ? 'inactivo' : 'activo'
-    const accion = newStatus === 'activo' ? 'ACTIVAR' : 'DESACTIVAR'
+  // 🛡️ Lógica de Alta/Baja
+  const gestionarCambioEstado = async (usuario: Usuario) => {
+    const nuevoEstado = usuario.estado === 'activo' ? 'inactivo' : 'activo'
+    const accion = nuevoEstado === 'activo' ? 'ACTIVAR' : 'DESACTIVAR'
 
-    if (confirm(`¿Está seguro que desea ${accion} al usuario ${user.nombre}?`)) {
-      setLoading(true) // Bloqueamos visualmente para evitar clics dobles
+    if (confirm(`¿Está seguro que desea ${accion} al usuario ${usuario.nombre}?`)) {
+      setCargando(true) 
       try {
-        const { error } = await userService.updateUser(user.id_usuario!, { estado: newStatus })
+        const { error } = await userService.actualizarUsuario(usuario.id_usuario!, { estado: nuevoEstado })
         if (error) throw error
         
-        // 💡 Truco: Esperamos un suspiro para que la DB asiente el cambio antes de pedir la lista
-        await fetchUsersData()
+        // Refrescamos la lista tras el cambio
+        await obtenerDatosUsuarios()
       } catch (err: any) {
         alert("No se pudo cambiar el estado: " + err.message)
-        setLoading(false)
+        setCargando(false)
       }
     }
   }
 
   // Filtro inteligente (Nombre + Apellido + DNI)
-  const filteredUsers = users.filter(u => 
-    `${u.nombre} ${u.apellido} ${u.dni}`.toLowerCase().includes(search.toLowerCase())
+  const usuariosFiltrados = usuarios.filter(usuario => 
+    `${usuario.nombre} ${usuario.apellido} ${usuario.dni}`.toLowerCase().includes(busqueda.toLowerCase())
   )
+
+  // Función para limpiar buscador y sincronizar datos
+  const gestionarSincronizacion = () => {
+    setBusqueda('')       
+    obtenerDatosUsuarios()    
+  }
 
   return (
     <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm min-h-125 flex flex-col">
@@ -66,19 +72,19 @@ export default function UserList({ refreshKey, onEdit }: Props) {
           <input 
             type="text" 
             placeholder="Buscar por nombre o DNI..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:bg-white focus:border-primary-unne outline-none transition-all placeholder:text-zinc-400"
           />
         </div>
         
         <button 
-          onClick={fetchUsersData} 
-          disabled={loading}
+          onClick={gestionarSincronizacion} 
+          disabled={cargando}
           className="ml-4 p-2.5 text-zinc-400 hover:text-primary-unne hover:bg-primary-unne/5 rounded-xl transition-all disabled:opacity-50"
           title="Sincronizar ahora"
         >
-          <span className={`material-symbols-outlined ${loading ? 'animate-spin' : ''}`}>sync</span>
+          <span className={`material-symbols-outlined ${cargando ? 'animate-spin' : ''}`}>sync</span>
         </button>
       </div>
 
@@ -93,25 +99,24 @@ export default function UserList({ refreshKey, onEdit }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-50">
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((u) => (
-                <tr key={u.id_usuario} className={`group hover:bg-zinc-50/40 transition-colors ${u.estado === 'inactivo' ? 'bg-zinc-50/20' : ''}`}>
+            {usuariosFiltrados.length > 0 ? (
+              usuariosFiltrados.map((usuario) => (
+                <tr key={usuario.id_usuario} className={`group hover:bg-zinc-50/40 transition-colors ${usuario.estado === 'inactivo' ? 'bg-zinc-50/20' : ''}`}>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
-                      {/* Avatar minimalista */}
                       <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm ${
-                        u.estado === 'activo' ? 'bg-primary-unne text-white' : 'bg-zinc-200 text-zinc-500'
+                        usuario.estado === 'activo' ? 'bg-primary-unne text-white' : 'bg-zinc-200 text-zinc-500'
                       }`}>
-                        {u.nombre[0]}{u.apellido[0]}
+                        {usuario.nombre[0]}{usuario.apellido[0]}
                       </div>
                       <div>
-                        <p className={`font-bold text-sm tracking-tight ${u.estado === 'inactivo' ? 'text-zinc-400' : 'text-zinc-900'}`}>
-                          {u.nombre} {u.apellido}
+                        <p className={`font-bold text-sm tracking-tight ${usuario.estado === 'inactivo' ? 'text-zinc-400' : 'text-zinc-900'}`}>
+                          {usuario.nombre} {usuario.apellido}
                         </p>
                         <div className="flex gap-2 items-center mt-0.5">
-                            <span className="text-[10px] font-mono text-zinc-400">{u.dni}</span>
+                            <span className="text-[10px] font-mono text-zinc-400">{usuario.dni}</span>
                             <span className="w-1 h-1 bg-zinc-200 rounded-full"></span>
-                            <span className="text-[9px] font-black uppercase text-primary-unne/60">{u.rol}</span>
+                            <span className="text-[9px] font-black uppercase text-primary-unne/60">{usuario.rol}</span>
                         </div>
                       </div>
                     </div>
@@ -119,48 +124,48 @@ export default function UserList({ refreshKey, onEdit }: Props) {
                   
                   <td className="px-8 py-5">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter border ${
-                      u.estado === 'activo' 
+                      usuario.estado === 'activo' 
                         ? 'bg-green-50 text-green-700 border-green-100' 
                         : 'bg-zinc-100 text-zinc-500 border-zinc-200'
                     }`}>
-                      <span className={`h-1 w-1 rounded-full mr-1.5 ${u.estado === 'activo' ? 'bg-green-500' : 'bg-zinc-400'}`}></span>
-                      {u.estado}
+                      <span className={`h-1 w-1 rounded-full mr-1.5 ${usuario.estado === 'activo' ? 'bg-green-500' : 'bg-zinc-400'}`}></span>
+                      {usuario.estado}
                     </span>
                   </td>
 
                   <td className="px-8 py-5 text-right">
                     <div className="flex justify-end gap-1 md:opacity-0 group-hover:opacity-100 transition-all">
                         <button 
-                          onClick={() => onEdit(u)} 
-                          disabled={u.estado === 'inactivo'} // 👈 Bloqueo total si está inactivo
+                          onClick={() => alEditar(usuario)} 
+                          disabled={usuario.estado === 'inactivo'} 
                           className={`p-2 rounded-lg transition-all ${
-                            u.estado === 'inactivo' 
-                              ? 'text-zinc-200 cursor-not-allowed opacity-50' // Estilo bloqueado
+                            usuario.estado === 'inactivo' 
+                              ? 'text-zinc-200 cursor-not-allowed opacity-50' 
                               : 'text-zinc-400 hover:text-primary-unne hover:bg-primary-unne/5'
                           }`} 
-                          title={u.estado === 'inactivo' ? 'Reactive al usuario para editar' : 'Editar perfil'}
+                          title={usuario.estado === 'inactivo' ? 'Reactive al usuario para editar' : 'Editar perfil'}
                         >
                           <span className="material-symbols-outlined text-xl">
-                            {u.estado === 'inactivo' ? 'lock' : 'edit_note'} {/* Cambia el icono a un candado si está inactivo */}
+                            {usuario.estado === 'inactivo' ? 'lock' : 'edit_note'}
                           </span>
                         </button>
                       
                       <button 
-                        onClick={() => handleToggleStatus(u)} 
+                        onClick={() => gestionarCambioEstado(usuario)} 
                         className={`p-2 rounded-lg transition-colors ${
-                          u.estado === 'activo' ? 'text-zinc-300 hover:text-red-500 hover:bg-red-50' : 'text-primary-unne hover:bg-primary-unne/5'
+                          usuario.estado === 'activo' ? 'text-zinc-300 hover:text-red-500 hover:bg-red-50' : 'text-primary-unne hover:bg-primary-unne/5'
                         }`} 
-                        title={u.estado === 'activo' ? 'Desactivar' : 'Reactivar'}
+                        title={usuario.estado === 'activo' ? 'Desactivar' : 'Reactivar'}
                       >
                         <span className="material-symbols-outlined text-xl">
-                          {u.estado === 'activo' ? 'person_off' : 'how_to_reg'}
+                          {usuario.estado === 'activo' ? 'person_off' : 'how_to_reg'}
                         </span>
                       </button>
                     </div>
                   </td>
                 </tr>
               ))
-            ) : !loading && (
+            ) : !cargando && (
               <tr>
                 <td colSpan={3} className="py-20 text-center">
                   <span className="material-symbols-outlined text-4xl text-zinc-200">person_search</span>
@@ -172,13 +177,12 @@ export default function UserList({ refreshKey, onEdit }: Props) {
         </table>
       </div>
       
-      {/* Footer informativo */}
       <div className="p-4 border-t border-zinc-50 bg-zinc-50/30 text-[9px] text-zinc-400 font-bold uppercase tracking-widest flex justify-between">
-        <span>Total: {filteredUsers.length} Usuarios</span>
+        <span>Total: {usuariosFiltrados.length} Usuarios</span>
         <span>SIC-UNNE Database</span>
       </div>
 
-      {loading && (
+      {cargando && (
         <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center rounded-2xl z-20">
           <div className="flex flex-col items-center">
             <div className="h-8 w-8 border-4 border-primary-unne border-t-transparent rounded-full animate-spin"></div>

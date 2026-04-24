@@ -1,9 +1,9 @@
 import { supabase } from './supabase'
-import { User } from '@/types/user'
+import { Usuario } from '@/types/user'
 
 export const userService = {
-  // READ: Traer todos los usuarios ordenados por fecha
-  fetchUsers: async () => {
+  // LEER: Traer todos los usuarios ordenados por fecha
+  obtenerUsuarios: async () => {
     const { data, error } = await supabase
       .from('usuarios')
       .select('*')
@@ -11,11 +11,11 @@ export const userService = {
     return { data, error }
   },
 
-  // CREATE: Guardar un nuevo registro
-  createUser: async (userData: Omit<User, 'id_usuario' | 'fecha_registro'>) => {
+  // CREAR: Guardar un nuevo registro
+  crearUsuario: async (datosUsuario: Omit<Usuario, 'id_usuario' | 'fecha_registro'>) => {
     const { data, error } = await supabase
       .from('usuarios')
-      .insert([userData]) // Supabase espera un array de objetos
+      .insert([datosUsuario]) // Supabase espera un array de objetos
       .select()
       .single() // Esto nos devuelve el objeto creado directamente en 'data'
     
@@ -23,25 +23,25 @@ export const userService = {
     return { data, error }
   },
 
-  // UPDATE: Método genérico para actualizar cualquier campo
-  updateUser: async (userId: string | number, changes: Partial<User>) => {
+  // ACTUALIZAR: Método genérico para actualizar cualquier campo
+  actualizarUsuario: async (idUsuario: string | number, cambios: Partial<Usuario>) => {
     const { data, error } = await supabase
       .from('usuarios')
-      .update(changes)
-      .eq('id_usuario', userId)
+      .update(cambios)
+      .eq('id_usuario', idUsuario)
       .select()
       .single()
       
     return { data, error }
   },
 
-  // LOGICAL DELETE: Cambiar estado a 'inactivo'
-  deactivateUser: async (userId: string | number) => {
-    return await userService.updateUser(userId, { estado: 'inactivo' })
+  // BAJA LÓGICA: Cambiar estado a 'inactivo'
+  desactivarUsuario: async (idUsuario: string | number) => {
+    return await userService.actualizarUsuario(idUsuario, { estado: 'inactivo' })
   },
 
-  // REACTIVATE: Cambiar estado a 'activo'
-  activateUser: async (userId: string | number) => {
-    return await userService.updateUser(userId, { estado: 'activo' })
+  // REACTIVAR: Cambiar estado a 'activo'
+  activarUsuario: async (idUsuario: string | number) => {
+    return await userService.actualizarUsuario(idUsuario, { estado: 'activo' })
   }
 }

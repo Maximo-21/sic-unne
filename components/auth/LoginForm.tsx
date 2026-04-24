@@ -3,30 +3,38 @@ import { useState } from 'react'
 import { authService } from '@/services/authService'
 
 interface Props {
-  onLoginSuccess: (user: any) => void;
+  alIniciarSesionExito: (usuario: any) => void;
 }
 
-export default function LoginForm({ onLoginSuccess }: Props) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+export default function LoginForm({ alIniciarSesionExito }: Props) {
+  // 1. Estados traducidos
+  const [cargando, setCargando] = useState(false)
+  const [errorMensaje, setErrorMensaje] = useState('')
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function gestionarEnvio(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setLoading(true)
-    setError('')
+    setCargando(true)
+    setErrorMensaje('')
 
-    const formData = new FormData(e.currentTarget)
-    const dni = formData.get('dni') as string
-    const pass = formData.get('pass') as string
+    const datosFormulario = new FormData(e.currentTarget)
+    const dni = datosFormulario.get('dni') as string
+    const clave = datosFormulario.get('pass') as string
 
     try {
-      const { data, error: authError } = await authService.login(dni, pass)
-      if (authError || !data) throw new Error('DNI o contraseña incorrectos')
-      onLoginSuccess(data)
-    } catch (err: any) {
-      setError(err.message)
+      // 🔐 Llamada al servicio de autenticación
+      const { data, error: errorAuth } = await authService.iniciarSesion(dni, clave)
+      
+      if (errorAuth || !data) {
+        throw new Error('DNI o contraseña incorrectos')
+      }
+
+      // Notificamos el éxito al componente padre
+      alIniciarSesionExito(data)
+      
+    } catch (error: any) {
+      setErrorMensaje(error.message)
     } finally {
-      setLoading(false)
+      setCargando(false)
     }
   }
 
@@ -34,7 +42,6 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white font-body">
       {/* 🟦 LADO IZQUIERDO: Branding Institucional */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary-unne p-16 flex-col justify-between relative overflow-hidden text-white">
-        {/* Círculo decorativo con clases canónicas (w-150 h-150) */}
         <div className="absolute top-[-10%] left-[-10%] w-150 h-150 bg-white/5 rounded-full blur-[120px]"></div>
         
         <div className="relative z-10">
@@ -70,21 +77,39 @@ export default function LoginForm({ onLoginSuccess }: Props) {
             <p className="text-zinc-400 text-sm font-semibold">Ingrese sus credenciales administrativas.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={gestionarEnvio} className="space-y-8">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Email / DNI</label>
-              <input name="dni" required className="w-full bg-white border-b-2 border-zinc-100 px-6 py-5 outline-none focus:border-primary-unne transition-all text-zinc-800 font-bold text-sm" placeholder="40123456" />
+              <input 
+                name="dni" 
+                required 
+                className="w-full bg-white border-b-2 border-zinc-100 px-6 py-5 outline-none focus:border-primary-unne transition-all text-zinc-800 font-bold text-sm" 
+                placeholder="40123456" 
+              />
             </div>
 
             <div className="space-y-3">
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Contraseña</label>
-              <input name="pass" type="password" required className="w-full bg-white border-b-2 border-zinc-100 px-6 py-5 outline-none focus:border-primary-unne transition-all text-zinc-800 font-bold text-sm" placeholder="••••••••" />
+              <input 
+                name="pass" 
+                type="password" 
+                required 
+                className="w-full bg-white border-b-2 border-zinc-100 px-6 py-5 outline-none focus:border-primary-unne transition-all text-zinc-800 font-bold text-sm" 
+                placeholder="••••••••" 
+              />
             </div>
 
-            {error && <div className="p-4 bg-red-50 text-red-600 text-[10px] font-black text-center rounded-2xl border border-red-100 uppercase animate-pulse">{error}</div>}
+            {errorMensaje && (
+              <div className="p-4 bg-red-50 text-red-600 text-[10px] font-black text-center rounded-2xl border border-red-100 uppercase animate-pulse">
+                {errorMensaje}
+              </div>
+            )}
 
-            <button disabled={loading} className="w-full bg-primary-unne hover:opacity-95 text-white font-black py-6 rounded-2xl shadow-2xl shadow-primary-unne/30 transition-all active:scale-[0.98] uppercase text-xs tracking-[0.3em]">
-              {loading ? 'Validando...' : 'Iniciar Sesión'}
+            <button 
+              disabled={cargando} 
+              className="w-full bg-primary-unne hover:opacity-95 text-white font-black py-6 rounded-2xl shadow-2xl shadow-primary-unne/30 transition-all active:scale-[0.98] uppercase text-xs tracking-[0.3em]"
+            >
+              {cargando ? 'Validando...' : 'Iniciar Sesión'}
             </button>
           </form>
         </div>

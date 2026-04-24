@@ -1,21 +1,28 @@
 import { supabase } from './supabase'
-import { User } from '@/types/user'
+import { Usuario } from '@/types/user'
 
 export const authService = {
-  login: async (dni: string, pass: string) => {
-    // 🚀 Llamamos a la función RPC que creamos en el SQL Editor
+  // INICIAR SESIÓN: Valida credenciales contra la base de datos
+  iniciarSesion: async (dni: string, clave: string) => {
+    
+    // 🚀 Llamamos a la función RPC (Procedimiento Almacenado) de Supabase
+    // Nota: 'verificar_login' es el nombre en el SQL Editor
     const { data, error } = await supabase.rpc('verificar_login', {
       p_dni: dni,
-      p_pass: pass
+      p_pass: clave
     })
 
-    // Como RPC devuelve una lista, tomamos el primer resultado (si existe)
-    const user = data && data.length > 0 ? data[0] : null;
+    // Como el RPC devuelve una lista, tomamos el primer resultado (si existe)
+    const usuario = data && data.length > 0 ? data[0] : null;
 
-    if (!user && !error) {
-      return { data: null, error: { message: 'DNI o Contraseña incorrectos' } }
+    if (!usuario && !error) {
+      return { 
+        data: null, 
+        error: { message: 'DNI o Contraseña incorrectos' } 
+      }
     }
 
-    return { data: user as User | null, error }
+    // Retornamos el usuario mapeado al tipo User
+    return { data: usuario as Usuario | null, error }
   }
 }
