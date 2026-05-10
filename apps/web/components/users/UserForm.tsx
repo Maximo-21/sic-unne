@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { userService } from '@/services/userService'
 import { esquemaUsuario } from '@/utils/validations'
 import { Usuario } from '@/types/user'
-import bcrypt from 'bcryptjs'
+
 
 interface Props {
   alCrearUsuario: () => void;
@@ -43,24 +43,22 @@ export default function UserForm({ alCrearUsuario, usuarioEditando, alCancelarEd
     // 2. DNI: Lo tomamos de la prop si editamos, o del form si es nuevo
     const dniAValidar = usuarioEditando ? usuarioEditando.dni : (datosFormulario.get('dni') as string) || '';
 
-    // 🔒 Hasheo solo para NUEVOS
+    // 1. Asignamos el DNI (que ya validamos arriba)
+    datosUsuario.dni = dniAValidar;
+
+    // 2. Si es un registro NUEVO, capturamos la contraseña en texto plano
     if (!usuarioEditando) {
       const valorClave = datosFormulario.get('contraseña') as string;
-      try {
-        const sal = await bcrypt.genSalt(10);
-        const claveHasheada = await bcrypt.hash(valorClave, sal);
-        datosUsuario.contraseña = claveHasheada; 
-        datosUsuario.dni = dniAValidar;
-      } catch (errorHash) {
-        setCargando(false);
-        return setMensaje({ texto: '❌ Error de encriptación', tipo: 'error' });
-      }
+      datosUsuario.contraseña = valorClave; 
     }
 
     // --- 🛡️ VALIDACIONES ---
-    if (!esquemaUsuario.validarObligatorios({ ...datosUsuario, dni: dniAValidar })) {
-      setCargando(false);
-      return setMensaje({ texto: '⚠️ Campos obligatorios faltantes', tipo: 'error' });
+    const objetoAValidar = { ...datosUsuario, dni: dniAValidar };
+    const esNuevo = !usuarioEditando;
+
+    if (!esquemaUsuario.validarObligatorios(objetoAValidar, esNuevo)) {
+    setCargando(false);
+    return setMensaje({ texto: '⚠️ Campos obligatorios faltantes', tipo: 'error' });
     }
 
     try {

@@ -22,6 +22,13 @@ export const authService = {
       }
     }
 
+    if (usuario && usuario.estado === 'inactivo') {
+      return { 
+      data: null, 
+      error: { message: 'Tu cuenta está desactivada. Contactá con el administrador.' } 
+    }
+  }
+
     // Retornamos el usuario mapeado al tipo User
     return { data: usuario as Usuario | null, error }
   }

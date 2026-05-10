@@ -34,20 +34,23 @@ export default function UserList({ claveRecarga, alEditar }: Props) {
 
   // 🛡️ Lógica de Alta/Baja
   const gestionarCambioEstado = async (usuario: Usuario) => {
-    const nuevoEstado = usuario.estado === 'activo' ? 'inactivo' : 'activo'
-    const accion = nuevoEstado === 'activo' ? 'ACTIVAR' : 'DESACTIVAR'
+  const nuevoEstado = usuario.estado === 'activo' ? 'inactivo' : 'activo'
+  const accion = nuevoEstado === 'activo' ? 'ACTIVAR' : 'DESACTIVAR'
 
-    if (confirm(`¿Está seguro que desea ${accion} al usuario ${usuario.nombre}?`)) {
-      setCargando(true) 
-      try {
-        const { error } = await userService.actualizarUsuario(usuario.id_usuario!, { estado: nuevoEstado })
-        if (error) throw error
-        
-        // Refrescamos la lista tras el cambio
-        await obtenerDatosUsuarios()
+  if (confirm(`¿Está seguro que desea ${accion} al usuario ${usuario.nombre}?`)) {
+    setCargando(true) 
+    try {
+      // ✅ Llamamos al método específico según el nuevo estado
+      const { error } = nuevoEstado === 'activo' 
+        ? await userService.activarUsuario(usuario.id_usuario!)
+        : await userService.desactivarUsuario(usuario.id_usuario!)
+
+      if (error) throw error
+      
+      await obtenerDatosUsuarios()
       } catch (err: any) {
-        alert("No se pudo cambiar el estado: " + err.message)
-        setCargando(false)
+      alert("No se pudo cambiar el estado: " + err.message)
+      setCargando(false)
       }
     }
   }
