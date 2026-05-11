@@ -3,10 +3,12 @@ import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  // 1. Agregamos "async"
+  // 2. Quitamos el ": string" porque ya no devuelve solo un texto
+  async getHello() {
+    return await this.appService.getHello();
   }
 }
