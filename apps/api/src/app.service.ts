@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from './database/prisma.service'; // Importamos tu servicio
+import { PrismaService } from './shared/infrastructure/prisma.service'; // Importamos tu servicio
 
 @Injectable()
 export class AppService {
-  // Inyectamos Prisma para poder usarlo
+
   constructor(private prisma: PrismaService) { }
 
-  async getHello() {
+  async obtenerUsuarios() {
     try {
       // Intentamos traer los usuarios de la base de datos
       const usuarios = await this.prisma.usuario.findMany();

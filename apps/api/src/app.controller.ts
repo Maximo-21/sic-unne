@@ -6,9 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) { }
 
   @Get()
-  // 1. Agregamos "async"
-  // 2. Quitamos el ": string" porque ya no devuelve solo un texto
-  async getHello() {
-    return await this.appService.getHello();
+  async obtenerUsuarios() {
+    return await this.appService.obtenerUsuarios();
   }
 }
