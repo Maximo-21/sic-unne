@@ -2,12 +2,12 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Usuario } from '@/types/user' // Importamos la interface que tradujimos
+import { Usuario } from '@modules/usuarios/types/Usuario' // Importamos la interface que tradujimos
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  
+
   // 1. Estado para almacenar los datos del alumno logueado
   const [alumno, setAlumno] = useState<Usuario | null>(null)
 
@@ -59,14 +59,13 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           {menuEstudiante.map((item) => {
             const estaActivo = pathname === item.path
             return (
-              <Link 
-                key={item.path} 
+              <Link
+                key={item.path}
                 href={item.path}
-                className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-sm transition-all border ${
-                  estaActivo 
-                  ? 'bg-white/10 border-white/20 shadow-lg text-white' 
-                  : 'text-white/50 border-transparent hover:bg-white/5 hover:text-white'
-                }`}
+                className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-sm transition-all border ${estaActivo
+                    ? 'bg-white/10 border-white/20 shadow-lg text-white'
+                    : 'text-white/50 border-transparent hover:bg-white/5 hover:text-white'
+                  }`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
                 {item.name}
@@ -76,11 +75,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         </nav>
 
         <div className="mt-8 pt-8 border-t border-white/5">
-          <button 
-            onClick={cerrarSesion} 
+          <button
+            onClick={cerrarSesion}
             className="w-full p-4 text-white/40 hover:text-white flex items-center gap-4 font-bold text-sm transition-colors"
           >
-            <span className="material-symbols-outlined">logout</span> 
+            <span className="material-symbols-outlined">logout</span>
             Cerrar Sesión
           </button>
         </div>
@@ -91,7 +90,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           <div className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
             Vista Alumno / <span className="text-primary-unne">{nombreTraducido}</span>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
               {/* 🟢 DINÁMICO: Mostramos nombre y apellido del estado */}

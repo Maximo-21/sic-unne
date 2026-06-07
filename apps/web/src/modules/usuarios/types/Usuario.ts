@@ -1,5 +1,5 @@
 export interface Usuario {
-  id_usuario?: string; // El signo '?' indica que es opcional porque Supabase lo genera solo
+  id?: string; // El signo '?' indica que es opcional porque Supabase lo genera solo
   dni: string;
   nombre: string;
   apellido: string;
