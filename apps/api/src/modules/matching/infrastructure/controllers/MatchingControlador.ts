@@ -3,16 +3,16 @@ import {
     Param, Body, Headers, ParseIntPipe, HttpCode, HttpStatus,
     BadRequestException, UseGuards,
 } from '@nestjs/common';
-import { AdminGuard }      from '../../../auth/guards/AdminGuard';
-import { EstudianteGuard } from '../../../auth/guards/EstudianteGuard';
+import { AdminGuard }      from '../../../auth/infrastructure/guards/AdminGuard';
+import { EstudianteGuard } from '../../../auth/infrastructure/guards/EstudianteGuard';
 import { CrearSolicitudServicio }                from '../../application/services/CrearSolicitudServicio';
 import { VotarPropuestaServicio }                from '../../application/services/VotarPropuestaServicio';
 import { CancelarSolicitudServicio }             from '../../application/services/CancelarSolicitudServicio';
 import { ObtenerSolicitudesEstudianteServicio }  from '../../application/services/ObtenerSolicitudesEstudianteServicio';
 import { ObtenerPropuestasEstudianteServicio }   from '../../application/services/ObtenerPropuestasEstudianteServicio';
 import { ObtenerPropuestasAdminServicio }        from '../../application/services/ObtenerPropuestasAdminServicio';
-import { CrearSolicitudDto }                     from '../../application/dto/crear-solicitud.dto';
-import { VotarPropuestaDto }                     from '../../application/dto/votar-propuesta.dto';
+import { CrearSolicitudDto }                     from '../../application/dto/CrearSolicitudDto';
+import { VotarPropuestaDto }                     from '../../application/dto/VotarPropuestaDto';
 
 @Controller('matching')
 export class MatchingControlador {

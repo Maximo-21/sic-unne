@@ -2,8 +2,8 @@ import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { IRepositorioUsuario } from '../../domain/repositories/IRepositorioUsuario';
 import { Usuario } from '../../domain/entities/Usuario';
-import { CrearUsuarioDto } from '../dto/crear-usuario.dto';
-import { UsuarioResponseDto } from '../dto/usuario-response.dto';
+import { CrearUsuarioDto } from '../dto/CrearUsuarioDto';
+import { UsuarioResponseDto } from '../dto/UsuarioResponseDto';
 import { UsuarioMapper } from '../mappers/UsuarioMapper';
 
 @Injectable()

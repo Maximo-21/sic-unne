@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { IRepositorioUsuario } from '../../domain/repositories/IRepositorioUsuario';
-import { ActualizarUsuarioDto } from '../dto/actualizar-usuario.dto';
-import { UsuarioResponseDto } from '../dto/usuario-response.dto';
+import { ActualizarUsuarioDto } from '../dto/ActualizarUsuarioDto';
+import { UsuarioResponseDto } from '../dto/UsuarioResponseDto';
 import { UsuarioMapper } from '../mappers/UsuarioMapper';
 
 @Injectable()

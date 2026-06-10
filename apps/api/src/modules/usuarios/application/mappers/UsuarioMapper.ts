@@ -1,5 +1,5 @@
 import { Usuario } from '../../domain/entities/Usuario';
-import { UsuarioResponseDto } from '../dto/usuario-response.dto';
+import { UsuarioResponseDto } from '../dto/UsuarioResponseDto';
 
 export class UsuarioMapper {
     static toDomain(raw: any): Usuario {

@@ -4,8 +4,8 @@ import { IRepositorioPropuesta }             from '../../domain/repositories/IRe
 import { IRepositorioInscripcion }           from '../../../gestion_academica/domain/repositories/IRepositorioInscripcion';
 import { SolicitudIntercambioMapper }        from '../mappers/SolicitudIntercambioMapper';
 import { PropuestaMapper }                   from '../mappers/PropuestaMapper';
-import { CrearSolicitudDto }              from '../dto/crear-solicitud.dto';
-import { ResultadoCrearSolicitudDto }     from '../dto/resultado-crear-solicitud.dto';
+import { CrearSolicitudDto }              from '../dto/CrearSolicitudDto';
+import { ResultadoCrearSolicitudDto }     from '../dto/ResultadoCrearSolicitudDto';
 
 @Injectable()
 export class CrearSolicitudServicio {

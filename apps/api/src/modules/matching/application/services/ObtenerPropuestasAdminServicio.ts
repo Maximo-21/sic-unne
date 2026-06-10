@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IRepositorioPropuesta } from '../../domain/repositories/IRepositorioPropuesta';
 import { PropuestaMapper }       from '../mappers/PropuestaMapper';
-import { PropuestaResponseDto }  from '../dto/propuesta-response.dto';
+import { PropuestaResponseDto }  from '../dto/PropuestaResponseDto';
 
 @Injectable()
 export class ObtenerPropuestasAdminServicio {

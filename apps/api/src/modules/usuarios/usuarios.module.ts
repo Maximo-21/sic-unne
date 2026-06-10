@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AdminGuard } from '../auth/guards/AdminGuard';
+import { AdminGuard } from '../auth/infrastructure/guards/AdminGuard';
 import { UsuariosControlador }         from './infrastructure/controllers/UsuariosControlador';
 import { ObtenerUsuariosServicio }     from './application/services/ObtenerUsuariosServicio';
 import { ObtenerUsuarioPorDniServicio } from './application/services/ObtenerUsuarioPorDniServicio';

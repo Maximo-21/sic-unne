@@ -5,8 +5,8 @@ import {
 import { IRepositorioSolicitudIntercambio } from '../../domain/repositories/IRepositorioSolicitudIntercambio';
 import { IRepositorioPropuesta }            from '../../domain/repositories/IRepositorioPropuesta';
 import { PropuestaMapper }                  from '../mappers/PropuestaMapper';
-import { VotarPropuestaDto }                from '../dto/votar-propuesta.dto';
-import { PropuestaResponseDto }             from '../dto/propuesta-response.dto';
+import { VotarPropuestaDto }                from '../dto/VotarPropuestaDto';
+import { PropuestaResponseDto }             from '../dto/PropuestaResponseDto';
 
 @Injectable()
 export class VotarPropuestaServicio {

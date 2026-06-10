@@ -1,5 +1,5 @@
 import { SolicitudIntercambio } from '../../domain/entities/SolicitudIntercambio';
-import { SolicitudIntercambioResponseDto } from '../dto/solicitud-intercambio-response.dto';
+import { SolicitudIntercambioResponseDto } from '../dto/SolicitudIntercambioResponseDto';
 
 export class SolicitudIntercambioMapper {
 

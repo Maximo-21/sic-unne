@@ -3,8 +3,8 @@ import { IRepositorioInscripcion } from '../../domain/repositories/IRepositorioI
 import { IRepositorioComision }    from '../../domain/repositories/IRepositorioComision';
 import { Inscripcion }             from '../../domain/entities/Inscripcion';
 import { InscripcionMapper }       from '../mappers/InscripcionMapper';
-import { CrearInscripcionDto }     from '../dto/crear-inscripcion.dto';
-import { InscripcionResponseDto }  from '../dto/inscripcion-response.dto';
+import { CrearInscripcionDto }     from '../dto/CrearInscripcionDto';
+import { InscripcionResponseDto }  from '../dto/InscripcionResponseDto';
 
 @Injectable()
 export class CrearInscripcionServicio {

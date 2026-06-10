@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IRepositorioSolicitudIntercambio } from '../../domain/repositories/IRepositorioSolicitudIntercambio';
 import { SolicitudIntercambioMapper }       from '../mappers/SolicitudIntercambioMapper';
-import { SolicitudIntercambioResponseDto }  from '../dto/solicitud-intercambio-response.dto';
+import { SolicitudIntercambioResponseDto }  from '../dto/SolicitudIntercambioResponseDto';
 
 @Injectable()
 export class ObtenerSolicitudesEstudianteServicio {

@@ -1,6 +1,6 @@
 import { Module }                                 from '@nestjs/common';
-import { AdminGuard }      from '../auth/guards/AdminGuard';
-import { EstudianteGuard } from '../auth/guards/EstudianteGuard';
+import { AdminGuard }      from '../auth/infrastructure/guards/AdminGuard';
+import { EstudianteGuard } from '../auth/infrastructure/guards/EstudianteGuard';
 import { GestionAcademicaModule }                from '../gestion_academica/gestion-academica.module';
 import { PrismaSolicitudIntercambioRepositorio } from './infrastructure/persistence/PrismaSolicitudIntercambioRepositorio';
 import { PrismaPropuestaRepositorio }            from './infrastructure/persistence/PrismaPropuestaRepositorio';

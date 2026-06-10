@@ -3,16 +3,16 @@ import {
     Body, Query, Headers,
     BadRequestException, UseGuards,
 } from '@nestjs/common';
-import { AdminGuard }        from '../../../auth/guards/AdminGuard';
-import { EstudianteGuard }   from '../../../auth/guards/EstudianteGuard';
-import { AutenticadoGuard }  from '../../../auth/guards/AutenticadoGuard';
+import { AdminGuard }        from '../../../auth/infrastructure/guards/AdminGuard';
+import { EstudianteGuard }   from '../../../auth/infrastructure/guards/EstudianteGuard';
+import { AutenticadoGuard }  from '../../../auth/infrastructure/guards/AutenticadoGuard';
 import { CrearInscripcionServicio }                from '../../application/services/CrearInscripcionServicio';
 import { ObtenerInscripcionesEstudianteServicio }  from '../../application/services/ObtenerInscripcionesEstudianteServicio';
 import { ObtenerInscripcionesAdminServicio }       from '../../application/services/ObtenerInscripcionesAdminServicio';
 import { ObtenerComisionesServicio }               from '../../application/services/ObtenerComisionesServicio';
 import { ObtenerAsignaturasServicio }              from '../../application/services/ObtenerAsignaturasServicio';
 import { ObtenerHorariosServicio }                 from '../../application/services/ObtenerHorariosServicio';
-import { CrearInscripcionDto }                     from '../../application/dto/crear-inscripcion.dto';
+import { CrearInscripcionDto }                     from '../../application/dto/CrearInscripcionDto';
 
 @Controller('academico')
 export class GestionAcademicaControlador {

@@ -1,9 +1,9 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { IRepositorioUsuario } from '../../../usuarios/domain/repositories/IRepositorioUsuario';
-import { UsuarioResponseDto }  from '../../../usuarios/application/dto/usuario-response.dto';
+import { UsuarioResponseDto }  from '../../../usuarios/application/dto/UsuarioResponseDto';
 import { UsuarioMapper }       from '../../../usuarios/application/mappers/UsuarioMapper';
-import { LoginDto } from '../../dto/login.dto';
+import { LoginDto } from '../dto/LoginDto';
 
 @Injectable()
 export class LoginServicio {

@@ -1,4 +1,4 @@
-import { SolicitudIntercambioResponseDto } from './solicitud-intercambio-response.dto';
+import { SolicitudIntercambioResponseDto } from './SolicitudIntercambioResponseDto';
 
 export class PropuestaResponseDto {
     id_propuesta!:    number;

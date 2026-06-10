@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IRepositorioInscripcion } from '../../domain/repositories/IRepositorioInscripcion';
 import { InscripcionMapper }       from '../mappers/InscripcionMapper';
-import { InscripcionResponseDto }  from '../dto/inscripcion-response.dto';
+import { InscripcionResponseDto }  from '../dto/InscripcionResponseDto';
 
 @Injectable()
 export class ObtenerInscripcionesAdminServicio {

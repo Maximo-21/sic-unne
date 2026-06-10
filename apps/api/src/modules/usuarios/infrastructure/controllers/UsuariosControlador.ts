@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Patch, Param, Body, NotFoundException, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
-import { AdminGuard } from '../../../auth/guards/AdminGuard';
+import { AdminGuard } from '../../../auth/infrastructure/guards/AdminGuard';
 import { ObtenerUsuariosServicio }      from '../../application/services/ObtenerUsuariosServicio';
 import { ObtenerUsuarioPorDniServicio } from '../../application/services/ObtenerUsuarioPorDniServicio';
 import { CrearUsuarioServicio }         from '../../application/services/CrearUsuarioServicio';
 import { ActualizarUsuarioServicio }    from '../../application/services/ActualizarUsuarioServicio';
 import { DarDeBajaUsuarioServicio }     from '../../application/services/DarDeBajaUsuarioServicio';
 import { ActivarUsuarioServicio }       from '../../application/services/ActivarUsuarioServicio';
-import { CrearUsuarioDto }              from '../../application/dto/crear-usuario.dto';
-import { ActualizarUsuarioDto }         from '../../application/dto/actualizar-usuario.dto';
+import { CrearUsuarioDto }              from '../../application/dto/CrearUsuarioDto';
+import { ActualizarUsuarioDto }         from '../../application/dto/ActualizarUsuarioDto';
 import { UsuarioMapper }                from '../../application/mappers/UsuarioMapper';
 
 @Controller('usuarios')

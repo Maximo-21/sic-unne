@@ -1,5 +1,5 @@
 import { Inscripcion } from '../../domain/entities/Inscripcion';
-import { InscripcionResponseDto } from '../dto/inscripcion-response.dto';
+import { InscripcionResponseDto } from '../dto/InscripcionResponseDto';
 
 export class InscripcionMapper {
     static toDomain(raw: any): Inscripcion {

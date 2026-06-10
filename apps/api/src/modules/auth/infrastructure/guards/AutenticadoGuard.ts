@@ -1,8 +1,8 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../../shared/infrastructure/prisma.service';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../../../../shared/infrastructure/prisma.service';
 
 @Injectable()
-export class EstudianteGuard implements CanActivate {
+export class AutenticadoGuard implements CanActivate {
     constructor(private readonly prisma: PrismaService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -13,21 +13,16 @@ export class EstudianteGuard implements CanActivate {
 
         try {
             const usuario = await this.prisma.usuario.findUnique({
-                where:   { id_usuario: idUsuario },
-                include: { rol: true },
+                where: { id_usuario: idUsuario },
             });
 
             if (!usuario || usuario.estado !== 'activo') {
                 throw new UnauthorizedException('Usuario no encontrado o inactivo.');
             }
 
-            if (usuario.rol.descripcion !== 'estudiante') {
-                throw new ForbiddenException('Acceso denegado: se requiere rol estudiante.');
-            }
-
             return true;
         } catch (err) {
-            if (err instanceof UnauthorizedException || err instanceof ForbiddenException) throw err;
+            if (err instanceof UnauthorizedException) throw err;
             throw new UnauthorizedException('Acceso no autorizado.');
         }
     }

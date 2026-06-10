@@ -1,5 +1,5 @@
 import { Propuesta } from '../../domain/entities/Propuesta';
-import { PropuestaResponseDto } from '../dto/propuesta-response.dto';
+import { PropuestaResponseDto } from '../dto/PropuestaResponseDto';
 import { SolicitudIntercambioMapper } from './SolicitudIntercambioMapper';
 
 export class PropuestaMapper {

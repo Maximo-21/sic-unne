@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AdminGuard }       from '../auth/guards/AdminGuard';
-import { EstudianteGuard }  from '../auth/guards/EstudianteGuard';
-import { AutenticadoGuard } from '../auth/guards/AutenticadoGuard';
+import { AdminGuard }       from '../auth/infrastructure/guards/AdminGuard';
+import { EstudianteGuard }  from '../auth/infrastructure/guards/EstudianteGuard';
+import { AutenticadoGuard } from '../auth/infrastructure/guards/AutenticadoGuard';
 import { GestionAcademicaControlador }           from './infrastructure/controllers/GestionAcademicaControlador';
 import { CrearInscripcionServicio }               from './application/services/CrearInscripcionServicio';
 import { ObtenerInscripcionesEstudianteServicio } from './application/services/ObtenerInscripcionesEstudianteServicio';
