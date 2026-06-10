@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Usuario } from '@modules/usuarios/types/Usuario' // Importamos la interface que tradujimos
+import { Usuario } from '@modules/usuarios/types/Usuario'
+import { limpiarSesion } from '@shared/utils/sesion'
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -24,23 +25,25 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   // 🗺️ Diccionario de traducción para el Header
   const mapaRutas: { [key: string]: string } = {
-    'commissions': 'Mis Comisiones',
-    'history': 'Mi Historial',
-    'notifications': 'Notificaciones',
+    'commissions': 'Comisiones Disponibles',
+    'inscripciones': 'Mis Inscripciones',
+    'solicitudes': 'Mis Solicitudes',
+    'propuestas': 'Mis Propuestas',
   }
 
   const segmento = pathname.split('/').pop() || ''
   const nombreTraducido = mapaRutas[segmento] || segmento
 
   const menuEstudiante = [
-    { name: 'Mis Comisiones', icon: 'hub', path: '/student/commissions' },
-    { name: 'Mi Historial', icon: 'receipt_long', path: '/student/history' },
-    { name: 'Notificaciones', icon: 'notifications', path: '/student/notifications' },
+    { name: 'Comisiones', icon: 'hub', path: '/student/commissions' },
+    { name: 'Inscripciones', icon: 'school', path: '/student/inscripciones' },
+    { name: 'Solicitudes', icon: 'swap_horiz', path: '/student/solicitudes' },
+    { name: 'Propuestas', icon: 'handshake', path: '/student/propuestas' },
   ]
 
   // Función para cerrar sesión y limpiar datos
   const cerrarSesion = () => {
-    localStorage.removeItem('usuario_sic')
+    limpiarSesion()
     router.push('/')
   }
 
@@ -98,7 +101,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                 {alumno ? `${alumno.nombre} ${alumno.apellido}` : 'Cargando...'}
               </p>
               <p className="text-[9px] font-bold text-primary-unne uppercase tracking-tighter">
-                {alumno?.rol === 'estudiante' ? 'Estudiante de Sistemas' : 'Usuario UNNE'}
+                {alumno?.rol_descripcion === 'estudiante' ? 'Estudiante de Sistemas' : 'Usuario UNNE'}
               </p>
             </div>
             <div className="w-10 h-10 bg-zinc-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center overflow-hidden">

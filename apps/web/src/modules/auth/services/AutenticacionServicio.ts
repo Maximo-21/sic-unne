@@ -1,9 +1,9 @@
-import { Usuario } from '@/modules/usuarios/types/Usuario'; // Fijate de que la ruta coincida con la del otro servicio
+import { Usuario } from '@/modules/usuarios/types/Usuario';
+import { guardarUsuario } from '@shared/utils/sesion';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export const AutenticacionServicio = {
-  // INICIAR SESIÓN: Le manda los datos a NestJS y espera la respuesta
   iniciarSesion: async (dni: string, clave: string) => {
     try {
       const respuesta = await fetch(`${API_URL}/auth/login`, {
@@ -14,18 +14,18 @@ export const AutenticacionServicio = {
 
       if (!respuesta.ok) {
         const errorData = await respuesta.json();
-        return { 
-          data: null, 
-          error: { message: errorData.message || 'DNI o Contraseña incorrectos' } 
+        return {
+          data: null,
+          error: { message: errorData.message || 'DNI o Contraseña incorrectos' }
         };
       }
 
       const { data: usuario } = await respuesta.json();
-
+      guardarUsuario(usuario);
       return { data: usuario as Usuario, error: null };
-      
-    } catch (error) {
+
+    } catch {
       return { data: null, error: { message: 'Error de conexión con el servidor' } };
     }
   }
-}
+};

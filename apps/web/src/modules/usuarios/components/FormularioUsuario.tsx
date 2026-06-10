@@ -189,7 +189,7 @@ export default function FormularioUsuario({ alGuardar, usuarioExistente, alCance
           <label className="text-[10px] font-black text-zinc-400 uppercase">Nivel de Acceso</label>
           <select
             name="rol"
-            defaultValue={usuarioExistente?.rol || 'estudiante'}
+            defaultValue={usuarioExistente?.rol_descripcion || 'estudiante'}
             className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm bg-white cursor-pointer"
           >
             <option value="estudiante">Estudiante</option>

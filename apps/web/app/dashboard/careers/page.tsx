@@ -1,41 +1,67 @@
+"use client"
+import { useEffect, useState, useCallback } from 'react'
+import TablaAsignaturas from '@/modules/gestion_academica/components/TablaAsignaturas'
+import ModalComisionesAsignatura from '@/modules/gestion_academica/components/ModalComisionesAsignatura'
+import { GestionAcademicaServicio } from '@/modules/gestion_academica/services/GestionAcademicaServicio'
+import { Asignatura } from '@/modules/gestion_academica/types/Asignatura'
+
 export default function CareersPage() {
-  const careers = [
-    { id: 1, name: 'Ingeniería en Sistemas de Información', degree: 'Grado', duration: '5 años', dept: 'Informática' },
-    { id: 2, name: 'Licenciatura en Ciencias Químicas', degree: 'Grado', duration: '5 años', dept: 'Química' },
-    { id: 3, name: 'Licenciatura en Sistemas de Información', degree: 'Grado', duration: '5 años', dept: 'Informática' },
-    { id: 4, name: 'Profesorado en Física', degree: 'Grado', duration: '4 años', dept: 'Física' },
-  ]
+  const [asignaturas, setAsignaturas] = useState<Asignatura[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState<Asignatura | null>(null)
+
+  const cargar = useCallback(async () => {
+    setCargando(true)
+    setError(null)
+    try {
+      const datos = await GestionAcademicaServicio.obtenerAsignaturas()
+      setAsignaturas(datos)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al cargar asignaturas')
+    } finally {
+      setCargando(false)
+    }
+  }, [])
+
+  useEffect(() => { cargar() }, [cargar])
 
   return (
     <div className="animate-in fade-in duration-700 font-body">
-      <div className="mb-10">
-        <h1 className="text-3xl font-black text-primary-unne tracking-tighter uppercase">Oferta Académica</h1>
-        <p className="text-zinc-400 text-sm font-medium">Carreras y departamentos de la Facultad de Exactas.</p>
+      <div className="mb-10 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-black text-zinc-900 tracking-tighter uppercase">Asignaturas</h1>
+          <p className="text-zinc-400 text-sm font-medium">Materias registradas en la Facultad de Exactas.</p>
+        </div>
+        <button
+          onClick={cargar}
+          disabled={cargando}
+          className="p-2.5 text-zinc-400 hover:text-primary-unne rounded-xl transition-all disabled:opacity-50"
+        >
+          <span className={`material-symbols-outlined ${cargando ? 'animate-spin' : ''}`}>sync</span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {careers.map((career) => (
-          <div key={career.id} className="bg-white border border-zinc-200 rounded-3xl p-8 hover:border-primary-unne/30 transition-all group">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-12 h-12 bg-primary-unne/5 rounded-2xl flex items-center justify-center text-primary-unne group-hover:bg-primary-unne group-hover:text-white transition-all">
-                <span className="material-symbols-outlined">school</span>
-              </div>
-              <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">{career.degree}</span>
-            </div>
-            <h3 className="font-headline font-bold text-xl text-zinc-900 mb-2 leading-tight">{career.name}</h3>
-            <div className="flex gap-4 mt-6 pt-6 border-t border-zinc-50">
-              <div>
-                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Departamento</p>
-                <p className="text-xs font-bold text-zinc-600">{career.dept}</p>
-              </div>
-              <div>
-                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Duración</p>
-                <p className="text-xs font-bold text-zinc-600">{career.duration}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {error && <p className="mb-6 text-sm text-red-500">{error}</p>}
+
+      {cargando ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin h-8 w-8 border-4 border-primary-unne border-t-transparent rounded-full"></div>
+        </div>
+      ) : (
+        <TablaAsignaturas
+          asignaturas={asignaturas}
+          onVerComisiones={setAsignaturaSeleccionada}
+        />
+      )}
+
+      {asignaturaSeleccionada && (
+        <ModalComisionesAsignatura
+          idAsignatura={asignaturaSeleccionada.id_asignatura}
+          nombreAsignatura={asignaturaSeleccionada.nombre_asignatura}
+          onCerrar={() => setAsignaturaSeleccionada(null)}
+        />
+      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { limpiarSesion } from '@shared/utils/sesion'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -9,8 +10,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // 🗺️ Diccionario de traducción para el Header
   const mapaRutas: { [key: string]: string } = {
     'users': 'Gestión de Usuarios',
+    'solicitudes': 'Propuestas de Intercambio',
     'commissions': 'Todas las Comisiones',
-    'careers': 'Carreras',
+    'careers': 'Asignaturas',
     'faculty': 'Facultad (Exa)',
     'history': 'Historial Global',
   }
@@ -21,9 +23,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const adminMenu = [
     { name: 'Gestión de Usuarios', icon: 'person_search', path: '/dashboard/users' },
-    { name: 'Todas las Comisiones', icon: 'hub', path: '/dashboard/commissions' },
-    { name: 'Carreras', icon: 'school', path: '/dashboard/careers' },
-    { name: 'Facultad (Exa)', icon: 'account_balance', path: '/dashboard/faculty' },
+    { name: 'Propuestas', icon: 'swap_horiz', path: '/dashboard/solicitudes' },
+    { name: 'Comisiones', icon: 'hub', path: '/dashboard/commissions' },
+    { name: 'Asignaturas', icon: 'school', path: '/dashboard/careers' },
     { name: 'Historial Global', icon: 'receipt_long', path: '/dashboard/history' },
   ]
 
@@ -60,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className="mt-8 pt-8 border-t border-white/5">
           <button 
-            onClick={() => router.push('/')} 
+            onClick={() => { limpiarSesion(); router.push('/') }}
             className="w-full p-4 text-white/40 hover:text-white flex items-center gap-4 font-bold text-sm transition-colors"
           >
             <span className="material-symbols-outlined">logout</span> 
