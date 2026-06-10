@@ -1,35 +1,31 @@
-import { supabase } from './supabase'
-import { Usuario } from '@/types/user'
+import { Usuario } from '@/modules/usuarios/types/Usuario'; // Fijate de que la ruta coincida con la del otro servicio
 
-export const authService = {
-  // INICIAR SESIÓN: Valida credenciales contra la base de datos
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export const AutenticacionServicio = {
+  // INICIAR SESIÓN: Le manda los datos a NestJS y espera la respuesta
   iniciarSesion: async (dni: string, clave: string) => {
-    
-    // 🚀 Llamamos a la función RPC (Procedimiento Almacenado) de Supabase
-    // Nota: 'verificar_login' es el nombre en el SQL Editor
-    const { data, error } = await supabase.rpc('verificar_login', {
-      p_dni: dni,
-      p_pass: clave
-    })
+    try {
+      const respuesta = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dni, clave })
+      });
 
-    // Como el RPC devuelve una lista, tomamos el primer resultado (si existe)
-    const usuario = data && data.length > 0 ? data[0] : null;
-
-    if (!usuario && !error) {
-      return { 
-        data: null, 
-        error: { message: 'DNI o Contraseña incorrectos' } 
+      if (!respuesta.ok) {
+        const errorData = await respuesta.json();
+        return { 
+          data: null, 
+          error: { message: errorData.message || 'DNI o Contraseña incorrectos' } 
+        };
       }
-    }
 
-    if (usuario && usuario.estado === 'inactivo') {
-      return { 
-      data: null, 
-      error: { message: 'Tu cuenta está desactivada. Contactá con el administrador.' } 
-    }
-  }
+      const { data: usuario } = await respuesta.json();
 
-    // Retornamos el usuario mapeado al tipo User
-    return { data: usuario as Usuario | null, error }
+      return { data: usuario as Usuario, error: null };
+      
+    } catch (error) {
+      return { data: null, error: { message: 'Error de conexión con el servidor' } };
+    }
   }
 }

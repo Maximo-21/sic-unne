@@ -1,39 +1,41 @@
 import { Injectable, Inject, ConflictException } from '@nestjs/common';
-import { UsuarioRepositorio } from '../../domain/repositories/UsuarioRepositorio';
+import * as bcrypt from 'bcryptjs';
+import { IRepositorioUsuario } from '../../domain/repositories/IRepositorioUsuario';
 import { Usuario } from '../../domain/entities/Usuario';
-import { CrearUsuarioDto } from '../../dto/crear-usuario.dto';
-import { UsuarioResponseDto } from '../../dto/usuario-response.dto';
+import { CrearUsuarioDto } from '../dto/crear-usuario.dto';
+import { UsuarioResponseDto } from '../dto/usuario-response.dto';
+import { UsuarioMapper } from '../mappers/UsuarioMapper';
 
 @Injectable()
 export class CrearUsuarioServicio {
     constructor(
-        @Inject('UsuarioRepositorio')
-        private readonly repositorio: UsuarioRepositorio
+        @Inject('IRepositorioUsuario')
+        private readonly repositorio: IRepositorioUsuario
     ) { }
 
     async ejecutar(dto: CrearUsuarioDto): Promise<UsuarioResponseDto> {
-        // REGLA DE ORO: Validar que el DNI no esté duplicado
-        const usuarioExistente = await this.repositorio.buscarPorDni(dto.dni);
-        if (usuarioExistente) {
+        const existente = await this.repositorio.buscarPorDni(dto.dni);
+        if (existente) {
             throw new ConflictException(`El usuario con DNI ${dto.dni} ya existe.`);
         }
 
-        // Creamos la entidad Usuario (Inyectando un ID único de forma simple)
+        const claveHasheada = await bcrypt.hash(dto.contrasena, 10);
+
         const nuevoUsuario = new Usuario(
-            crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2),
+            crypto.randomUUID(),
             dto.dni,
             dto.nombre,
             dto.apellido,
             dto.email,
-            dto.contrasena,
-            dto.rol,
-            'activo', // Estado activo por defecto
-            new Date()
+            claveHasheada,
+            dto.carrera ?? null,
+            dto.idRol,
+            null,
+            'activo',
+            new Date(),
         );
 
-        const usuarioGuardado = await this.repositorio.guardar(nuevoUsuario);
-        
-        // Devolvemos la respuesta filtrada sin contraseña
-        return UsuarioResponseDto.desdeEntidad(usuarioGuardado);
+        const guardado = await this.repositorio.guardar(nuevoUsuario);
+        return UsuarioMapper.toDto(guardado);
     }
 }

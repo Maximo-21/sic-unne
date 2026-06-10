@@ -1,16 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": ".",
     "paths": {
-      "@repo/database": [
-        "../../packages/database/index.ts"
-      ]
+      "@repo/database": ["../../packages/database/index.d.ts"]
     },
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

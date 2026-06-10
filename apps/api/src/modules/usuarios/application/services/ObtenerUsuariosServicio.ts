@@ -1,15 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UsuarioRepositorio } from '../../domain/repositories/UsuarioRepositorio';
+import { IRepositorioUsuario } from '../../domain/repositories/IRepositorioUsuario';
+import { Usuario } from '../../domain/entities/Usuario';
 
 @Injectable()
 export class ObtenerUsuariosServicio {
     constructor(
-        @Inject('UsuarioRepositorio')
-        private readonly repositorio: UsuarioRepositorio
+        @Inject('IRepositorioUsuario')
+        private readonly repositorio: IRepositorioUsuario
     ) { }
 
-    async ejecutar() {
-        // Aquí podrías agregar lógica extra, como filtrar solo los activos
-        return await this.repositorio.obtenerTodos();
+    async ejecutar(): Promise<Usuario[]> {
+        return this.repositorio.obtenerTodos();
     }
 }

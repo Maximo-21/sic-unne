@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react'
-import { authService } from '@/services/authService'
+import { AutenticacionServicio } from '@/modules/auth/services/AutenticacionServicio';
 
 interface Props {
   alIniciarSesionExito: (usuario: any) => void;
@@ -22,7 +22,7 @@ export default function LoginForm({ alIniciarSesionExito }: Props) {
 
     try {
       // 🔐 Llamada al servicio de autenticación
-      const { data, error: errorAuth } = await authService.iniciarSesion(dni, clave)
+      const { data, error: errorAuth } = await AutenticacionServicio.iniciarSesion(dni, clave)
       
       if (errorAuth || !data) {
         throw new Error('DNI o contraseña incorrectos')

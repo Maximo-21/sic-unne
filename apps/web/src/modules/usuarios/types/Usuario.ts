@@ -1,11 +1,11 @@
 export interface Usuario {
-  id?: string; // El signo '?' indica que es opcional porque Supabase lo genera solo
+  id_usuario?: string;
   dni: string;
   nombre: string;
   apellido: string;
   email: string;
-  contraseña?: string;
-  rol: 'estudiante' | 'admin'; // Usamos estos valores fijos para evitar errores de escritura
-  estado: 'activo' | 'inactivo';
-  fecha_registro?: string; // Opcional, por si la base de datos guarda la fecha automáticamente
+  carrera?: string | null;
+  rol?: string | null;
+  estado?: string | null;
+  fecha_registro?: string | null;
 }

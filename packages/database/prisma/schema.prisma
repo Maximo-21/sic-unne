@@ -3,8 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Rol {
+  id_rol      Int       @id @default(autoincrement())
+  descripcion String    @unique
+
+  usuarios    Usuario[]
+  @@map("roles")
 }
 
 model Usuario {
@@ -14,9 +23,82 @@ model Usuario {
   apellido       String
   email          String    @unique
   contrasena     String    @map("contraseña")
-  rol            String?   @default("estudiante")
+  carrera        String?
   estado         String?   @default("activo")
   fecha_registro DateTime? @default(now()) @db.Timestamptz(6)
 
+  id_rol         Int
+  rol            Rol       @relation(fields: [id_rol], references: [id_rol])
+
+  inscripciones  Inscripcion[]
+  solicitudes    Solicitud_Intercambio[]
   @@map("usuarios")
+}
+
+// NUEVAS TABLAS PARA EL MATCHING
+model Asignatura {
+  id_asignatura     Int        @id @default(autoincrement())
+  nombre_asignatura String
+  anio_asignatura   String
+  comisiones        Comision[]
+}
+
+model Comision {
+  id_comision     Int        @id @default(autoincrement())
+  nombre_comision String
+  id_asignatura   Int
+  asignatura      Asignatura @relation(fields: [id_asignatura], references: [id_asignatura])
+
+  horarios        Horario[]
+  inscripciones   Inscripcion[]
+  
+  solicitudes_origen  Solicitud_Intercambio[] @relation("ComisionOrigen")
+  solicitudes_destino Solicitud_Intercambio[] @relation("ComisionDestino")
+}
+
+model Horario {
+  id_horario  Int      @id @default(autoincrement())
+  dia         String
+  hora_desde  String
+  hora_hasta  String
+  modalidad   String
+  id_comision Int
+  comision    Comision @relation(fields: [id_comision], references: [id_comision])
+}
+
+model Inscripcion {
+  id_inscripcion    Int       @id @default(autoincrement())
+  estado            String    @default("activa")
+  fecha_inscripcion DateTime? @default(now()) @db.Timestamptz(6)
+  id_comision       Int
+  comision          Comision  @relation(fields: [id_comision], references: [id_comision])
+  id_usuario        String    @db.Uuid
+  usuario           Usuario   @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Solicitud_Intercambio {
+  id_solicitud        Int      @id @default(autoincrement())
+  estado              String   @default("pendiente")
+  fecha_creacion      DateTime? @default(now()) @db.Timestamptz(6) 
+  id_usuario          String   @db.Uuid
+  usuario             Usuario  @relation(fields: [id_usuario], references: [id_usuario])
+  id_comision_origen  Int
+  comision_origen     Comision @relation("ComisionOrigen", fields: [id_comision_origen], references: [id_comision])
+  id_comision_destino Int
+  comision_destino    Comision @relation("ComisionDestino", fields: [id_comision_destino], references: [id_comision])
+  
+  propuestas_solicitud_1 Propuesta[] @relation("Solicitud1")
+  propuestas_solicitud_2 Propuesta[] @relation("Solicitud2")
+}
+
+model Propuesta {
+  id_propuesta    Int      @id @default(autoincrement())
+  estado_general  String   @default("pendiente")
+  estado_alumno_1  String   @default("pendiente")
+  estado_alumno_2  String   @default("pendiente")
+  fecha_match      DateTime? @db.Timestamptz(6)
+  id_solicitud_1  Int
+  solicitud_1     Solicitud_Intercambio @relation("Solicitud1", fields: [id_solicitud_1], references: [id_solicitud])
+  id_solicitud_2  Int
+  solicitud_2     Solicitud_Intercambio @relation("Solicitud2", fields: [id_solicitud_2], references: [id_solicitud])
 }

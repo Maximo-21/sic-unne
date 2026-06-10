@@ -1,17 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { UsuarioRepositorio } from '../../domain/repositories/UsuarioRepositorio';
+import { IRepositorioUsuario } from '../../domain/repositories/IRepositorioUsuario';
+import { Usuario } from '../../domain/entities/Usuario';
 
 @Injectable()
 export class ObtenerUsuarioPorDniServicio {
     constructor(
-        @Inject('UsuarioRepositorio')
-        private readonly repositorio: UsuarioRepositorio
+        @Inject('IRepositorioUsuario')
+        private readonly repositorio: IRepositorioUsuario
     ) { }
 
-    async ejecutar(dni: string) {
-        const usuario = await this.repositorio.buscarPorDni(dni);
-
-        // Podés devolver el usuario directamente o lanzar un error si no existe
-        return usuario;
+    async ejecutar(dni: string): Promise<Usuario | null> {
+        return this.repositorio.buscarPorDni(dni);
     }
 }

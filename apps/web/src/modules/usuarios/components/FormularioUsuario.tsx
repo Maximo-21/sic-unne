@@ -30,7 +30,7 @@ export default function FormularioUsuario({ alGuardar, usuarioExistente, alCance
 
     const datosFormulario = new FormData(formularioActual)
 
-    // 1. Estructura de datos alineada con la Entidad del Backend
+    // 1. Estructura de datos para validación interna
     const datosUsuario: any = {
       nombre: (datosFormulario.get('nombre') as string).trim(),
       apellido: (datosFormulario.get('apellido') as string).trim(),
@@ -42,24 +42,42 @@ export default function FormularioUsuario({ alGuardar, usuarioExistente, alCance
     const dniAValidar = usuarioExistente ? usuarioExistente.dni : (datosFormulario.get('dni') as string) || '';
     datosUsuario.dni = dniAValidar;
 
-    // Solo enviamos contraseña si es un registro nuevo
+    // Solo incluimos contraseña si es un registro nuevo
     if (!usuarioExistente) {
       datosUsuario.contraseña = datosFormulario.get('contraseña') as string;
     }
 
-    // --- 🛡️ VALIDACIONES ---
+    // --- VALIDACIONES ---
     if (!Validaciones.validarObligatorios(datosUsuario, !usuarioExistente)) {
       setCargando(false);
       return setMensaje({ texto: '⚠️ Campos obligatorios faltantes', tipo: 'error' });
     }
 
+    // Mapa de descripción de rol a id_rol (debe coincidir con la tabla roles en BD)
+    const rolMap: Record<string, number> = { estudiante: 1, admin: 2 };
+    const carrera = (datosFormulario.get('carrera') as string)?.trim() || null;
+
     try {
-      if (usuarioExistente?.id) {
-        // ACTUALIZAR (Usando el ID de la entidad)
-        await UsuariosServicio.actualizar(usuarioExistente.id, datosUsuario)
+      if (usuarioExistente?.id_usuario) {
+        // ACTUALIZAR: solo campos editables, sin DNI ni contraseña
+        await UsuariosServicio.actualizar(usuarioExistente.id_usuario, {
+          nombre: datosUsuario.nombre,
+          apellido: datosUsuario.apellido,
+          email: datosUsuario.email,
+          carrera,
+          idRol: rolMap[datosUsuario.rol] ?? 1,
+        })
       } else {
-        // CREAR
-        await UsuariosServicio.crear(datosUsuario)
+        // CREAR: incluye DNI, contraseña (sin ñ) e idRol numérico
+        await UsuariosServicio.crear({
+          dni: datosUsuario.dni,
+          nombre: datosUsuario.nombre,
+          apellido: datosUsuario.apellido,
+          email: datosUsuario.email,
+          contrasena: datosUsuario.contraseña,
+          carrera,
+          idRol: rolMap[datosUsuario.rol] ?? 1,
+        })
       }
 
       setMensaje({ texto: '✅ Operación Exitosa', tipo: 'success' })
@@ -77,7 +95,7 @@ export default function FormularioUsuario({ alGuardar, usuarioExistente, alCance
 
   return (
     <div
-      key={usuarioExistente?.id || 'nuevo-usuario'}
+      key={usuarioExistente?.id_usuario || 'nuevo-usuario'}
       className="bg-white border border-zinc-200 rounded-2xl shadow-sm"
     >
       <div className="p-6 border-b border-zinc-100 bg-zinc-50/30">
@@ -135,6 +153,17 @@ export default function FormularioUsuario({ alGuardar, usuarioExistente, alCance
             type="email"
             defaultValue={usuarioExistente?.email}
             required
+            className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none"
+          />
+        </div>
+
+        {/* CARRERA */}
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-black text-zinc-400 uppercase">Carrera (Opcional)</label>
+          <input
+            name="carrera"
+            defaultValue={usuarioExistente?.carrera ?? ''}
+            placeholder="Ej: Ingeniería en Sistemas"
             className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:border-primary-unne outline-none"
           />
         </div>

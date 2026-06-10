@@ -1,5 +1,5 @@
 "use client"
-import LoginForm from '@/components/auth/LoginForm'
+import LoginForm from '@/modules/auth/components/LoginForm'
 import { useRouter } from 'next/navigation'
 
 export default function Home() {

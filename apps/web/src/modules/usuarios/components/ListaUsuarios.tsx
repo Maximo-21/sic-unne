@@ -42,9 +42,9 @@ export default function ListaUsuarios({ claveRecarga, alSeleccionarParaEditar, a
       try {
         // Llamamos a los métodos que coinciden con los casos de uso
         if (nuevoEstado === 'activo') {
-          await UsuariosServicio.activar(usuario.id!)
+          await UsuariosServicio.activar(usuario.id_usuario!)
         } else {
-          await UsuariosServicio.darDeBaja(usuario.id!)
+          await UsuariosServicio.darDeBaja(usuario.id_usuario!)
         }
 
         alCambiarEstado() // Refrescamos a través del padre (page.tsx)
@@ -60,7 +60,7 @@ export default function ListaUsuarios({ claveRecarga, alSeleccionarParaEditar, a
   )
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm min-h-[500px] flex flex-col relative">
+    <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm min-h-125 flex flex-col relative">
       {/* Header con Buscador */}
       <div className="p-6 border-b border-zinc-100 flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-2xl">
         <div className="relative w-full max-w-md">
@@ -95,7 +95,7 @@ export default function ListaUsuarios({ claveRecarga, alSeleccionarParaEditar, a
           <tbody className="divide-y divide-zinc-50">
             {usuariosFiltrados.length > 0 ? (
               usuariosFiltrados.map((usuario) => (
-                <tr key={usuario.id} className={`group hover:bg-zinc-50/40 ${usuario.estado === 'inactivo' ? 'bg-zinc-50/20' : ''}`}>
+                <tr key={usuario.id_usuario} className={`group hover:bg-zinc-50/40 ${usuario.estado === 'inactivo' ? 'bg-zinc-50/20' : ''}`}>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
                       <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold text-xs ${usuario.estado === 'activo' ? 'bg-primary-unne text-white' : 'bg-zinc-200 text-zinc-500'
