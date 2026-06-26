@@ -6,6 +6,18 @@ import { InscripcionMapper }       from '../mappers/InscripcionMapper';
 import { CrearInscripcionDto }     from '../dto/CrearInscripcionDto';
 import { InscripcionResponseDto }  from '../dto/InscripcionResponseDto';
 
+/**
+ * Caso de uso: **Inscribirse en una Comisión** (HU2 — Consultar Datos Académicos → seleccionar comisión).
+ *
+ * Pre-condiciones:
+ * - La comisión debe existir.
+ * - El alumno no debe estar ya inscripto en la misma comisión.
+ * - El alumno no debe tener inscripción activa en la misma asignatura (una asignatura = una comisión).
+ *
+ * @throws {NotFoundException}   si la comisión no existe
+ * @throws {ConflictException}   si el alumno ya está inscripto en esa comisión
+ * @throws {BadRequestException} si ya tiene inscripción activa en la misma asignatura
+ */
 @Injectable()
 export class CrearInscripcionServicio {
     constructor(
@@ -15,6 +27,12 @@ export class CrearInscripcionServicio {
         private readonly comisionRepo: IRepositorioComision,
     ) { }
 
+    /**
+     * Crea una inscripción activa para el alumno en la comisión indicada.
+     * @param idUsuario — UUID del alumno que se inscribe
+     * @param dto       — id de la comisión destino
+     * @returns DTO con los datos de la inscripción creada
+     */
     async ejecutar(idUsuario: string, dto: CrearInscripcionDto): Promise<InscripcionResponseDto> {
         const comision = await this.comisionRepo.buscarPorId(dto.idComision);
         if (!comision) {

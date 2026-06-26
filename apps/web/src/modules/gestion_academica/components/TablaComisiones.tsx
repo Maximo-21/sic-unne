@@ -1,6 +1,8 @@
 "use client"
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
+import { confirmarConToast } from '@shared/utils/toastConfirm'
 import { GestionAcademicaServicio } from '../services/GestionAcademicaServicio'
 import { Comision } from '../types/Comision'
 import { Asignatura } from '../types/Asignatura'
@@ -44,13 +46,15 @@ export default function TablaComisiones() {
     horarios.filter((h) => h.id_comision === idComision)
 
   const inscribirse = async (idComision: number) => {
-    if (!confirm('¿Inscribirse en esta comisión?')) return
+    const confirmado = await confirmarConToast('¿Confirmar inscripción en esta comisión?')
+    if (!confirmado) return
     setInscribiendo(idComision)
     try {
       await GestionAcademicaServicio.inscribirse(idComision)
+      toast.success('¡Inscripción realizada con éxito!')
       router.push('/student/inscripciones')
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error al inscribirse')
+      toast.error(err instanceof Error ? err.message : 'Error al inscribirse')
       setInscribiendo(null)
     }
   }

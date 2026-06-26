@@ -106,9 +106,10 @@ describe('VotarPropuestaServicio', () => {
         ).rejects.toThrow(new BadRequestException('Ya registraste tu voto en esta propuesta.'));
     });
 
-    // ── Caso 4: un alumno rechaza — propuesta rechazada, solicitudes vuelven a pendiente
-    it('marca la propuesta como rechazada y devuelve ambas solicitudes a pendiente cuando alguien rechaza', async () => {
-        const propuestaOriginal = crearPropuesta();
+    // ── Caso 4: un alumno rechaza — propuesta rechazada, rechazador='cancelada', otro='pendiente'
+    it('cancela la solicitud del rechazador y devuelve la del otro a pendiente cuando alguien rechaza', async () => {
+        // usr_student_01 es alumno1 (solicitud id=10) y rechaza la propuesta
+        const propuestaOriginal   = crearPropuesta();
         const propuestaConRechazo = crearPropuesta({ estadoAlumno1: 'rechazado' });
         const propuestaFinal      = crearPropuesta({ estadoGeneral: 'rechazada', estadoAlumno1: 'rechazado' });
 
@@ -123,7 +124,9 @@ describe('VotarPropuestaServicio', () => {
         const resultado = await servicio.ejecutar(1, 'usr_student_01', { voto: 'rechazado' });
 
         expect(propuestaRepo.actualizarEstadoGeneral).toHaveBeenCalledWith(1, 'rechazada');
-        expect(solicitudRepo.actualizarEstado).toHaveBeenCalledWith(10, 'pendiente');
+        // HU5: la solicitud de quien rechazó (alumno1 → id=10) pasa a 'cancelada'
+        expect(solicitudRepo.actualizarEstado).toHaveBeenCalledWith(10, 'cancelada');
+        // HU5: la solicitud del otro alumno (alumno2 → id=11) vuelve a 'pendiente'
         expect(solicitudRepo.actualizarEstado).toHaveBeenCalledWith(11, 'pendiente');
         expect(propuestaRepo.ejecutarIntercambio).not.toHaveBeenCalled();
         expect(resultado).toBeDefined();

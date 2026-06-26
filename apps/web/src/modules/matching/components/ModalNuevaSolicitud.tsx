@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { MatchingServicio } from '../services/MatchingServicio'
 import { GestionAcademicaServicio } from '@/modules/gestion_academica/services/GestionAcademicaServicio'
 import { Inscripcion } from '@/modules/gestion_academica/types/Inscripcion'
@@ -15,7 +16,6 @@ export default function ModalNuevaSolicitud({ inscripcionOrigen, onCreada, onCer
   const [comisiones, setComisiones] = useState<Comision[]>([])
   const [idDestino, setIdDestino] = useState<number | ''>('')
   const [cargando, setCargando] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     GestionAcademicaServicio.obtenerComisiones()
@@ -29,13 +29,17 @@ export default function ModalNuevaSolicitud({ inscripcionOrigen, onCreada, onCer
     e.preventDefault()
     if (!idDestino) return
     setCargando(true)
-    setError(null)
     try {
-      await MatchingServicio.crearSolicitud(inscripcionOrigen.id_comision, idDestino)
+      const resultado = await MatchingServicio.crearSolicitud(inscripcionOrigen.id_comision, idDestino)
+      if (resultado.propuesta) {
+        toast.success('¡Match automático encontrado! Revisá tus propuestas.')
+      } else {
+        toast.success('Solicitud registrada. Aguardando solicitud espejo.')
+      }
       onCreada()
       onCerrar()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al crear solicitud')
+      toast.error(err instanceof Error ? err.message : 'Error al crear la solicitud')
     } finally {
       setCargando(false)
     }
@@ -76,12 +80,6 @@ export default function ModalNuevaSolicitud({ inscripcionOrigen, onCreada, onCer
               ))}
             </select>
           </div>
-
-          {error && (
-            <div className="p-4 rounded-xl text-sm font-bold border bg-red-50 text-red-500 border-red-100">
-              {error}
-            </div>
-          )}
 
           <div className="flex gap-3 pt-1">
             <button

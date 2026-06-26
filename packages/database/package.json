@@ -6,7 +6,8 @@
     "types": "./index.ts",
     "scripts": {
         "db:generate": "prisma generate",
-        "db:push": "prisma db push"
+        "db:push": "prisma db push",
+        "db:procedures": "prisma db execute --file prisma/sql/stored_procedures.sql --schema prisma/schema.prisma"
     },
     "prisma": {
         "seed": "ts-node --transpile-only prisma/seed.ts"

@@ -4,10 +4,26 @@ import {
 } from '@nestjs/common';
 import { IRepositorioSolicitudIntercambio } from '../../domain/repositories/IRepositorioSolicitudIntercambio';
 import { IRepositorioPropuesta }            from '../../domain/repositories/IRepositorioPropuesta';
+import { InscripcionObservador }            from '../../domain/observers/InscripcionObservador';
 import { PropuestaMapper }                  from '../mappers/PropuestaMapper';
 import { VotarPropuestaDto }                from '../dto/VotarPropuestaDto';
 import { PropuestaResponseDto }             from '../dto/PropuestaResponseDto';
 
+/**
+ * Caso de uso: **Votar Propuesta** (HU5 — Aceptar/Rechazar intercambio).
+ *
+ * Flujo de decisión (HU5):
+ * - Si hay rechazo → la propuesta pasa a `'rechazada'`. La solicitud del alumno que rechazó
+ *   pasa a `'cancelada'`; la del otro alumno vuelve a `'pendiente'` (preservando fecha_creacion).
+ * - Si ambos aceptan → suscribe `InscripcionObservador` a `solicitud1`, dispara
+ *   `cambiarEstado('aceptada')` → el observador llama al SP `ejecutar_intercambio`
+ *   y marca la propuesta como `'aceptada'`.
+ * - Si falta un voto → retorna el estado intermedio sin acciones adicionales.
+ *
+ * @throws {NotFoundException}   si la propuesta no existe
+ * @throws {BadRequestException} si la propuesta ya fue resuelta o el alumno ya votó
+ * @throws {ForbiddenException}  si el usuario no pertenece a ninguna de las solicitudes
+ */
 @Injectable()
 export class VotarPropuestaServicio {
     constructor(
@@ -17,6 +33,13 @@ export class VotarPropuestaServicio {
         private readonly solicitudRepo: IRepositorioSolicitudIntercambio,
     ) {}
 
+    /**
+     * Registra el voto del alumno y aplica las consecuencias del estado resultante.
+     * @param idPropuesta — id de la propuesta a votar
+     * @param idUsuario   — UUID del alumno que vota
+     * @param dto         — voto (`'aceptado'` o `'rechazado'`)
+     * @returns DTO con el estado final de la propuesta tras procesar el voto
+     */
     async ejecutar(
         idPropuesta: number,
         idUsuario: string,
@@ -52,15 +75,23 @@ export class VotarPropuestaServicio {
 
         if (actualizada.tieneRechazo()) {
             await this.propuestaRepo.actualizarEstadoGeneral(idPropuesta, 'rechazada');
-            await this.solicitudRepo.actualizarEstado(actualizada.idSolicitud1, 'pendiente');
-            await this.solicitudRepo.actualizarEstado(actualizada.idSolicitud2, 'pendiente');
+
+            // HU5: la solicitud del alumno que rechazó → 'cancelada'; la del otro → 'pendiente'
+            const rechazoAlumno1 = actualizada.alumno1HaRechazado();
+            const idSolicitudCancelada = rechazoAlumno1 ? actualizada.idSolicitud1 : actualizada.idSolicitud2;
+            const idSolicitudRestante  = rechazoAlumno1 ? actualizada.idSolicitud2 : actualizada.idSolicitud1;
+
+            await this.solicitudRepo.actualizarEstado(idSolicitudCancelada, 'cancelada');
+            await this.solicitudRepo.actualizarEstado(idSolicitudRestante,  'pendiente');
+
             const final = await this.propuestaRepo.buscarPorId(idPropuesta);
             return PropuestaMapper.toDto(final!);
         }
 
-        if (actualizada.ambosHanAceptado()) {
-            await this.propuestaRepo.ejecutarIntercambio(idPropuesta);
-            await this.propuestaRepo.actualizarEstadoGeneral(idPropuesta, 'aceptada');
+        if (actualizada.puedeEjecutarse()) {
+            const observador = new InscripcionObservador(this.propuestaRepo, idPropuesta);
+            actualizada.solicitud1!.suscribir(observador);
+            await actualizada.solicitud1!.cambiarEstado('aceptada');
             const final = await this.propuestaRepo.buscarPorId(idPropuesta);
             return PropuestaMapper.toDto(final!);
         }

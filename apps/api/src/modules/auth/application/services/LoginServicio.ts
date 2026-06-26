@@ -5,6 +5,14 @@ import { UsuarioResponseDto }  from '../../../usuarios/application/dto/UsuarioRe
 import { UsuarioMapper }       from '../../../usuarios/application/mappers/UsuarioMapper';
 import { LoginDto } from '../dto/LoginDto';
 
+/**
+ * Caso de uso: **Autenticación** — verifica credenciales y retorna los datos del usuario.
+ *
+ * Seguridad: el mensaje de error es idéntico para "usuario inexistente" y "contraseña incorrecta"
+ * para evitar la enumeración de usuarios (timing-safe mediante bcrypt.compare).
+ *
+ * @throws {UnauthorizedException} si las credenciales son incorrectas o el usuario está inactivo
+ */
 @Injectable()
 export class LoginServicio {
     constructor(
@@ -12,6 +20,11 @@ export class LoginServicio {
         private readonly repositorio: IRepositorioUsuario
     ) { }
 
+    /**
+     * Valida DNI y contraseña; retorna el perfil del usuario autenticado.
+     * @param dto — credenciales (`dni` y `clave` en texto plano)
+     * @returns DTO con los datos del usuario (sin contraseña)
+     */
     async ejecutar(dto: LoginDto): Promise<UsuarioResponseDto> {
         const usuario = await this.repositorio.buscarPorDni(dto.dni);
 

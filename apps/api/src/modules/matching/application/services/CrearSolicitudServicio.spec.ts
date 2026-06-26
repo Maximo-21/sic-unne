@@ -65,7 +65,7 @@ function crearMockInscripcionRepo(): jest.Mocked<IRepositorioInscripcion> {
     };
 }
 
-// ─── Suite ───────────────────────────────────────────────────────────────────
+// ─── Suite — Plan de Prueba 2: Solicitar Intercambio ─────────────────────────
 
 describe('CrearSolicitudServicio', () => {
     let servicio: CrearSolicitudServicio;
@@ -80,18 +80,17 @@ describe('CrearSolicitudServicio', () => {
         servicio        = new CrearSolicitudServicio(solicitudRepo, propuestaRepo, inscripcionRepo);
     });
 
-    // ── Caso 1: comisiones idénticas ─────────────────────────────────────────
-    it('lanza BadRequestException cuando idComisionOrigen === idComisionDestino', async () => {
+    // ── CP2: comisiones idénticas — curso alternativo ────────────────────────
+    it('CP2 — lanza BadRequestException cuando idComisionOrigen === idComisionDestino', async () => {
         await expect(
             servicio.ejecutar('usr_student_01', { idComisionOrigen: 10, idComisionDestino: 10 }),
         ).rejects.toThrow(new BadRequestException('Las comisiones de origen y destino no pueden ser la misma.'));
 
-        // El repo nunca debe ser consultado si falla la validación inicial
         expect(inscripcionRepo.buscarPorUsuarioYComision).not.toHaveBeenCalled();
         expect(solicitudRepo.guardar).not.toHaveBeenCalled();
     });
 
-    // ── Caso 2: sin inscripción activa ───────────────────────────────────────
+    // ── Caso sin inscripción activa ───────────────────────────────────────────
     it('lanza BadRequestException cuando el alumno no tiene inscripción activa en la comisión origen', async () => {
         inscripcionRepo.buscarPorUsuarioYComision.mockResolvedValue(null);
 
@@ -102,8 +101,8 @@ describe('CrearSolicitudServicio', () => {
         expect(solicitudRepo.guardar).not.toHaveBeenCalled();
     });
 
-    // ── Caso 3: sin espejo — solicitud queda pendiente ───────────────────────
-    it('persiste la solicitud con estado pendiente y retorna propuesta null cuando no hay espejo', async () => {
+    // ── CP1: sin espejo — solicitud ingresa a la cola de espera ─────────────
+    it('CP1 — persiste la solicitud con estado pendiente y retorna propuesta null cuando no hay espejo', async () => {
         const solicitudCreada = crearSolicitud();
         inscripcionRepo.buscarPorUsuarioYComision.mockResolvedValue(crearInscripcionActiva());
         solicitudRepo.guardar.mockResolvedValue(solicitudCreada);
@@ -112,12 +111,13 @@ describe('CrearSolicitudServicio', () => {
         const resultado = await servicio.ejecutar('usr_student_01', { idComisionOrigen: 10, idComisionDestino: 12 });
 
         expect(resultado.propuesta).toBeNull();
+        expect(resultado.solicitud.estado).toBe('pendiente');
         expect(propuestaRepo.guardar).not.toHaveBeenCalled();
         expect(solicitudRepo.actualizarEstado).not.toHaveBeenCalled();
     });
 
-    // ── Caso 4: espejo encontrado — crea propuesta y bloquea ambas ───────────
-    it('crea una Propuesta y actualiza ambas solicitudes a en_propuesta cuando detecta espejo', async () => {
+    // ── CP3: espejo encontrado — disparo automático del matching ─────────────
+    it('CP3 — dispara PropuestaObservador y crea Propuesta cuando detecta solicitud espejo', async () => {
         const solicitudActual = new SolicitudIntercambio(
             1, 'pendiente', new Date(), 'usr_student_02', 12, 10, null, null, null, null, null, null,
         );
@@ -132,13 +132,16 @@ describe('CrearSolicitudServicio', () => {
         solicitudRepo.guardar.mockResolvedValue(solicitudActual);
         propuestaRepo.buscarEspejos.mockResolvedValue([solicitudEspejo]);
         propuestaRepo.guardar.mockResolvedValue(propuestaGenerada);
-        solicitudRepo.actualizarEstado.mockResolvedValue();
+        solicitudRepo.actualizarEstado.mockResolvedValue(undefined);
 
         const resultado = await servicio.ejecutar('usr_student_02', { idComisionOrigen: 12, idComisionDestino: 10 });
 
+        // El PropuestaObservador debe haber sido notificado y creado la propuesta
         expect(propuestaRepo.guardar).toHaveBeenCalledWith(solicitudActual.id, solicitudEspejo.id);
         expect(solicitudRepo.actualizarEstado).toHaveBeenCalledWith(solicitudActual.id, 'en_propuesta');
         expect(solicitudRepo.actualizarEstado).toHaveBeenCalledWith(solicitudEspejo.id, 'en_propuesta');
         expect(resultado.propuesta).not.toBeNull();
+        // La solicitud actual debe haber cambiado de estado via el Sujeto Observer
+        expect(solicitudActual.estado).toBe('en_propuesta');
     });
 });

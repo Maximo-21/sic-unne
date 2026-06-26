@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 // 💡 Importamos las fuentes que elegiste para el diseño de Stitch
-import { Inter, Manrope } from "next/font/google"; 
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
+import ToasterProvider from "@shared/components/ToasterProvider";
 
 // Configuración de Manrope para títulos (Headline)
 const manrope = Manrope({ 
@@ -41,6 +42,8 @@ export default function RootLayout({
         <div className="relative z-10">
           {children}
         </div>
+
+        <ToasterProvider />
 
         {/* Script para los iconos de Google que usa el diseño */}
         <link 

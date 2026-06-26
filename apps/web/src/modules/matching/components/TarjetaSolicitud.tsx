@@ -1,5 +1,7 @@
 "use client"
 import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { confirmarConToast } from '@shared/utils/toastConfirm'
 import { MatchingServicio } from '../services/MatchingServicio'
 import { Solicitud } from '../types/Solicitud'
 import EtiquetaEstado from '@shared/components/EtiquetaEstado'
@@ -14,13 +16,15 @@ export default function TarjetaSolicitud({ solicitud, onCancelada }: Props) {
   const [expandida, setExpandida] = useState(false)
 
   const cancelar = async () => {
-    if (!confirm('¿Cancelar esta solicitud?')) return
+    const confirmado = await confirmarConToast('¿Cancelar esta solicitud de intercambio?')
+    if (!confirmado) return
     setCancelando(true)
     try {
       await MatchingServicio.cancelarSolicitud(solicitud.id_solicitud)
+      toast.success('Solicitud cancelada correctamente.')
       onCancelada()
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error al cancelar')
+      toast.error(err instanceof Error ? err.message : 'Error al cancelar la solicitud')
     } finally {
       setCancelando(false)
     }

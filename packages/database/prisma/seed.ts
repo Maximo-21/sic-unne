@@ -33,6 +33,35 @@ async function main() {
     });
     console.log('✓ Administrador creado.  DNI: 00000001 / Contraseña: Admin1234');
 
+    // ─── 2.5. USUARIOS ESTUDIANTES DE PRUEBA ─────────────────────────────────────
+    const estudiantes = [
+        { dni: '40123456', nombre: 'Juan', apellido: 'García', email: 'juan.garcia@student.edu.ar', carrera: 'Ingeniería en Sistemas', clave: 'Est12345' },
+        { dni: '41234567', nombre: 'María', apellido: 'López', email: 'maria.lopez@student.edu.ar', carrera: 'Ingeniería en Sistemas', clave: 'Est12345' },
+        { dni: '42345678', nombre: 'Carlos', apellido: 'Rodríguez', email: 'carlos.rodriguez@student.edu.ar', carrera: 'Informática', clave: 'Est12345' },
+        { dni: '43456789', nombre: 'Sofía', apellido: 'Martínez', email: 'sofia.martinez@student.edu.ar', carrera: 'Informática', clave: 'Est12345' },
+        { dni: '44567890', nombre: 'Diego', apellido: 'Fernández', email: 'diego.fernandez@student.edu.ar', carrera: 'Ciencias de la Computación', clave: 'Est12345' },
+    ];
+
+    for (const est of estudiantes) {
+        const claveHasheada = await bcrypt.hash(est.clave, 10);
+        await prisma.usuario.upsert({
+            where:  { dni: est.dni },
+            update: {},
+            create: {
+                dni:        est.dni,
+                nombre:     est.nombre,
+                apellido:   est.apellido,
+                email:      est.email,
+                contrasena: claveHasheada,
+                carrera:    est.carrera,
+                estado:     'activo',
+                id_rol:     1,
+            },
+        });
+        console.log(`  · ${est.nombre} ${est.apellido} (${est.dni}) — Estudiante creado.`);
+    }
+    console.log('✓ Estudiantes sembrados (5).');
+
     // ─── 3. ASIGNATURAS, COMISIONES Y HORARIOS ───────────────────────────────────
     // Guard: si ya existen asignaturas no se vuelve a correr este bloque.
     if (await prisma.asignatura.count() > 0) {
@@ -76,7 +105,7 @@ async function main() {
             ],
         });
 
-        console.log(`  · ${nombre} — Comisión 1 y Comisión 2 creadas.`);
+        console.log(`  · ${datos.nombre_asignatura} — Comisión 1 y Comisión 2 creadas.`);
     }
 
     console.log('✓ Asignaturas sembradas (4).');

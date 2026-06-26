@@ -1,5 +1,7 @@
 "use client"
 import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { confirmarConToast } from '@shared/utils/toastConfirm'
 import { MatchingServicio } from '../services/MatchingServicio'
 import { Propuesta } from '../types/Propuesta'
 import { obtenerIdUsuario } from '@shared/utils/sesion'
@@ -19,13 +21,16 @@ export default function TarjetaPropuesta({ propuesta, onVotada }: Props) {
   const puedeVotar = propuesta.estado_general === 'pendiente' && miEstado === 'pendiente'
 
   const votar = async (voto: 'aceptado' | 'rechazado') => {
-    if (!confirm(`¿Confirmar voto: ${voto}?`)) return
+    const accion = voto === 'aceptado' ? 'aceptar' : 'rechazar'
+    const confirmado = await confirmarConToast(`¿Desea ${accion} el intercambio?`)
+    if (!confirmado) return
     setVotando(true)
     try {
       await MatchingServicio.votarPropuesta(propuesta.id_propuesta, voto)
+      toast.success(voto === 'aceptado' ? 'Intercambio aceptado.' : 'Intercambio rechazado.')
       onVotada()
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error al votar')
+      toast.error(err instanceof Error ? err.message : 'Error al registrar el voto')
     } finally {
       setVotando(false)
     }

@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { MatchingServicio } from '../services/MatchingServicio'
 import { GestionAcademicaServicio } from '@/modules/gestion_academica/services/GestionAcademicaServicio'
 import { Comision } from '@/modules/gestion_academica/types/Comision'
@@ -13,7 +14,6 @@ export default function FormularioSolicitud({ onSolicitudCreada }: Props) {
   const [idOrigen, setIdOrigen] = useState<number | ''>('')
   const [idDestino, setIdDestino] = useState<number | ''>('')
   const [cargando, setCargando] = useState(false)
-  const [mensaje, setMensaje] = useState<{ texto: string; tipo: string } | null>(null)
 
   useEffect(() => {
     GestionAcademicaServicio.obtenerComisiones()
@@ -25,20 +25,23 @@ export default function FormularioSolicitud({ onSolicitudCreada }: Props) {
     e.preventDefault()
     if (!idOrigen || !idDestino) return
     if (idOrigen === idDestino) {
-      setMensaje({ texto: 'Las comisiones de origen y destino no pueden ser iguales.', tipo: 'error' })
+      toast.error('Las comisiones de origen y destino no pueden ser iguales.')
       return
     }
 
     setCargando(true)
-    setMensaje(null)
     try {
-      await MatchingServicio.crearSolicitud(idOrigen, idDestino)
-      setMensaje({ texto: 'Solicitud creada correctamente.', tipo: 'success' })
+      const resultado = await MatchingServicio.crearSolicitud(idOrigen, idDestino)
+      if (resultado.propuesta) {
+        toast.success('¡Se encontró un match! Revisá tus propuestas para aceptar o rechazar.')
+      } else {
+        toast.success('Solicitud registrada. Aguardando una solicitud espejo.')
+      }
       setIdOrigen('')
       setIdDestino('')
       onSolicitudCreada()
     } catch (err: unknown) {
-      setMensaje({ texto: err instanceof Error ? err.message : 'Error al crear solicitud', tipo: 'error' })
+      toast.error(err instanceof Error ? err.message : 'Error al crear la solicitud')
     } finally {
       setCargando(false)
     }
@@ -77,16 +80,6 @@ export default function FormularioSolicitud({ onSolicitudCreada }: Props) {
             ))}
           </select>
         </div>
-
-        {mensaje && (
-          <div className={`p-4 rounded-xl text-sm font-bold border ${
-            mensaje.tipo === 'error'
-              ? 'bg-red-50 text-red-500 border-red-100'
-              : 'bg-green-50 text-green-600 border-green-100'
-          }`}>
-            {mensaje.texto}
-          </div>
-        )}
 
         <button
           type="submit"
